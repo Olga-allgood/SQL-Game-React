@@ -1,19 +1,13 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import LandingPage from "./pages/LandingPage";
-import Admin from "./pages/Admin";
-import Student from "./pages/Student";
-import AdminLayout from "./components/AdminLayout";
+import { Routes, Route } from "react-router-dom";
 
+
+import Student from "./pages/Student";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route element={<AdminLayout />}>
-      <Route path="/" element={<Navigate to="/admin" replace/>} />
-       <Route path="/admin" element={<Admin />} />
-      </Route>
-      <Route path="/student" element={<Student />} />
+
+      <Route path="/" element={<Student />} />
     </Routes>
   );
 }
