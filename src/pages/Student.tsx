@@ -8,13 +8,15 @@ import {
   Typography,
 } from "antd";
 import {
+  ReadOutlined,
   UserOutlined,
   SmileOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 
-import MemoryGame from "../components/MemoryGame";
+import { QueryBuilder } from "../components/QueryBuilder";
 import SQLDetective from "../components/SQLDetective";
+import {SQLCards} from "../components/SQLCards";
 
 const { Sider, Content } = Layout;
 const { Title } = Typography;
@@ -48,6 +50,11 @@ export default function Student() {
               label: "My Profile",
             },
             {
+            key: "SQL-cards",
+            icon: <ReadOutlined />,
+            label: "SQL Cards",
+          },
+            {
               key: "memory",
               icon: <SmileOutlined />,
               label: "Memory Game",
@@ -80,8 +87,9 @@ export default function Student() {
               </Card>
             </>
           )}
+          {selectedMenu === "SQL-cards" && <SQLCards />}
 
-          {selectedMenu === "memory" && <MemoryGame />}
+          {selectedMenu === "memory" && <QueryBuilder />}
 
           {selectedMenu === "detective" && <SQLDetective />}
         </Content>
