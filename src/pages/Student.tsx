@@ -17,6 +17,9 @@ import {
 import { QueryBuilder } from "../components/QueryBuilder";
 import SQLDetective from "../components/SQLDetective";
 import {SQLCards} from "../components/SQLCards";
+import SQLInvestigator from "../components/SQLInvestigator";
+import SQLCaseFile from "../components/SQLCaseFile";
+import SQLChallenge from "../components/SQLChallenge";
 
 const { Sider, Content } = Layout;
 const { Title } = Typography;
@@ -64,6 +67,23 @@ export default function Student() {
               icon: <SearchOutlined />,
               label: "SQL Detective",
             },
+                        {
+              key: "investigator",
+              icon: <SearchOutlined />,
+              label: "SQL Investigator",
+            },
+                                    {
+              key: "casefile",
+              icon: <SearchOutlined />,
+              label: "SQL Case File",
+            },
+                  
+             {
+              key: "challenge",
+              icon: <SearchOutlined />,
+              label: "SQL Challenge",
+            },
+            
           ]}
         />
       </Sider>
@@ -92,6 +112,12 @@ export default function Student() {
           {selectedMenu === "memory" && <QueryBuilder />}
 
           {selectedMenu === "detective" && <SQLDetective />}
+
+           {selectedMenu === "investigator" && <SQLInvestigator />}
+
+           {selectedMenu === "casefile" && <SQLCaseFile />}
+
+           {selectedMenu === "challenge" && <SQLChallenge />}
         </Content>
       </Layout>
     </Layout>

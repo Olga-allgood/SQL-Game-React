@@ -505,22 +505,23 @@ const tasks = [
 
 export const QueryBuilder = () => {
   const [currentTask, setCurrentTask] = useState(0);
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState<string[]>([]);
   const [feedback, setFeedback] = useState("");
   const [showHint, setShowHint] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [usedAnswer, setUsedAnswer] = useState(false);
   const [totalXP, setTotalXP] = useState(0);
 
   const task = tasks[currentTask];
 
-  const handleClick = (piece) => {
+  const handleClick = (piece: string) => {
     if (selected.includes(piece) || completed) {
       return;
     }
 
     setSelected([...selected, piece]);
     setFeedback("");
-    setShowHint(false);
   };
 
   const handleCheck = () => {
@@ -528,20 +529,32 @@ export const QueryBuilder = () => {
       JSON.stringify(selected) === JSON.stringify(task.answer);
 
     if (isCorrect) {
-      setFeedback(`🎉 Correct! ${task.explanation}`);
-      setTotalXP((previous) => previous + task.xp);
+      setFeedback(task.explanation);
       setCompleted(true);
+
+      // Only award XP for solving independently.
+      if (!usedAnswer) {
+        setTotalXP((previous) => previous + task.xp);
+      }
+
       setShowHint(false);
     } else {
       setFeedback(
-        "You're close! Look at the order of the SQL clauses and think about what each keyword is responsible for."
+        "You're close. Check the order of your SQL clauses."
       );
       setShowHint(true);
     }
   };
 
   const handleHint = () => {
-    setFeedback(`💡 Hint: ${task.hint}`);
+    setShowHint(true);
+    setFeedback(task.hint);
+  };
+
+  const handleShowAnswer = () => {
+    setShowAnswer(true);
+    setUsedAnswer(true);
+    setShowHint(false);
   };
 
   const handleNext = () => {
@@ -550,7 +563,9 @@ export const QueryBuilder = () => {
       setSelected([]);
       setFeedback("");
       setShowHint(false);
+      setShowAnswer(false);
       setCompleted(false);
+      setUsedAnswer(false);
     }
   };
 
@@ -558,53 +573,101 @@ export const QueryBuilder = () => {
     setSelected([]);
     setFeedback("");
     setShowHint(false);
+    setShowAnswer(false);
     setCompleted(false);
+    setUsedAnswer(false);
   };
 
-  const progress = ((currentTask + (completed ? 1 : 0)) / tasks.length) * 100;
+  const progress =
+    ((currentTask + (completed ? 1 : 0)) / tasks.length) * 100;
 
   return (
-    <Card style={{ maxWidth: 800, margin: "0 auto" }}>
-      <Title level={2}>🧩 Query Builder</Title>
+    <Card
+      style={{
+        maxWidth: 800,
+        margin: "0 auto",
+      }}
+      styles={{
+        body: {
+          padding: 24,
+        },
+      }}
+    >
+      {/* Header */}
 
-      <Space direction="vertical" size="small" style={{ width: "100%" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 8,
+        }}
+      >
         <Text strong>
           Task {currentTask + 1} of {tasks.length}
         </Text>
 
-        <Progress percent={Math.round(progress)} />
-
-        <Text>⭐ XP: {totalXP}</Text>
-
         <Text type="secondary">
-          Level: {task.level}
+          {totalXP} XP
         </Text>
-      </Space>
+      </div>
 
-      <Card style={{ marginTop: 24 }}>
-        <Title level={4}>{task.question}</Title>
-      </Card>
+      <Progress
+        percent={Math.round(progress)}
+        showInfo={false}
+        size="small"
+      />
+
+      {/* Question */}
+
+      <div style={{ marginTop: 28 }}>
+        <Text type="secondary">
+          {task.level}
+        </Text>
+
+        <Title
+          level={4}
+          style={{
+            marginTop: 6,
+            marginBottom: 0,
+          }}
+        >
+          {task.question}
+        </Title>
+      </div>
 
       {/* Query being built */}
-      <Card
-        style={{
-          marginTop: 24,
-          minHeight: 90,
-          background: "#fafafa",
-        }}
-      >
-        <Text code style={{ fontSize: 16 }}>
-          {selected.length > 0
-            ? selected.join(" ")
-            : "Click the SQL pieces below to build your query..."}
+
+      <div style={{ marginTop: 24 }}>
+        <Text type="secondary">
+          Your query
         </Text>
-      </Card>
+
+        <div
+          style={{
+            marginTop: 8,
+            padding: 16,
+            minHeight: 70,
+            background: "#fafafa",
+            borderRadius: 6,
+            border: "1px solid #f0f0f0",
+          }}
+        >
+          <Text code>
+            {selected.length > 0
+              ? selected.join(" ")
+              : "Build your query using the SQL pieces below."}
+          </Text>
+        </div>
+      </div>
 
       {/* SQL pieces */}
+
       <Space
         wrap
+        size={[8, 8]}
         style={{
-          marginTop: 24,
+          marginTop: 16,
         }}
       >
         {task.pieces.map((piece, index) => (
@@ -618,8 +681,13 @@ export const QueryBuilder = () => {
         ))}
       </Space>
 
-      {/* Action buttons */}
-      <Space style={{ marginTop: 24 }}>
+      {/* Main action */}
+
+      <Space
+        style={{
+          marginTop: 24,
+        }}
+      >
         <Button
           type="primary"
           onClick={handleCheck}
@@ -633,44 +701,186 @@ export const QueryBuilder = () => {
         </Button>
       </Space>
 
-      {/* Feedback */}
-      {feedback && (
-        <Card style={{ marginTop: 24 }}>
-          <Paragraph>{feedback}</Paragraph>
+      {/* Learning support */}
 
-          {showHint && !completed && (
-            <Button type="link" onClick={handleHint}>
-              💡 Show Hint
+      {!completed && (
+        <div
+          style={{
+            marginTop: 16,
+          }}
+        >
+          <Space size="middle">
+            <Button
+              type="link"
+              onClick={handleHint}
+              style={{
+                paddingLeft: 0,
+              }}
+            >
+              Show Hint
             </Button>
-          )}
-        </Card>
+
+            <Button
+              type="link"
+              onClick={handleShowAnswer}
+              style={{
+                paddingLeft: 0,
+              }}
+            >
+              Show Answer
+            </Button>
+          </Space>
+        </div>
+      )}
+
+      {/* Hint */}
+
+      {showHint && !showAnswer && !completed && (
+        <div
+          style={{
+            marginTop: 20,
+            paddingTop: 16,
+            borderTop: "1px solid #f0f0f0",
+          }}
+        >
+          <Text type="secondary">
+            Hint
+          </Text>
+
+          <Paragraph
+            style={{
+              marginTop: 6,
+              marginBottom: 0,
+            }}
+          >
+            {task.hint}
+          </Paragraph>
+        </div>
+      )}
+
+      {/* Worked example */}
+
+      {showAnswer && !completed && (
+        <div
+          style={{
+            marginTop: 20,
+            paddingTop: 20,
+            borderTop: "1px solid #f0f0f0",
+          }}
+        >
+          <Text type="secondary">
+            Correct query
+          </Text>
+
+          <div
+            style={{
+              marginTop: 8,
+              padding: 16,
+              background: "#fafafa",
+              borderRadius: 6,
+              border: "1px solid #f0f0f0",
+            }}
+          >
+            <Text
+              code
+              style={{
+                whiteSpace: "pre-wrap",
+              }}
+            >
+              {task.answer.join(" ")}
+            </Text>
+          </div>
+
+          <div style={{ marginTop: 16 }}>
+            <Text type="secondary">
+              Why it works
+            </Text>
+
+            <Paragraph
+              style={{
+                marginTop: 6,
+                marginBottom: 0,
+              }}
+            >
+              {task.explanation}
+            </Paragraph>
+          </div>
+
+          <Text
+            type="secondary"
+            style={{
+              display: "block",
+              marginTop: 12,
+            }}
+          >
+            Study the example, then try building the query
+            yourself.
+          </Text>
+        </div>
+      )}
+
+      {/* Feedback after checking */}
+
+      {feedback && (
+        <div
+          style={{
+            marginTop: 24,
+            paddingTop: 20,
+            borderTop: "1px solid #f0f0f0",
+          }}
+        >
+          <Text
+            strong
+            type={completed ? "success" : "secondary"}
+          >
+            {completed ? "Correct" : "Not quite"}
+          </Text>
+
+          <Paragraph
+            style={{
+              marginTop: 8,
+              marginBottom: 0,
+            }}
+          >
+            {feedback}
+          </Paragraph>
+        </div>
       )}
 
       {/* Completed */}
-      {completed && (
-        <Card style={{ marginTop: 24 }}>
-          <Title level={4}>🏆 Challenge Complete!</Title>
 
-          <Text>
-            You earned <strong>+{task.xp} XP</strong>
+      {completed && (
+        <div
+          style={{
+            marginTop: 24,
+            paddingTop: 20,
+            borderTop: "1px solid #f0f0f0",
+          }}
+        >
+          <Text
+            strong
+            type="success"
+          >
+            {usedAnswer
+              ? "Practice complete"
+              : `+${task.xp} XP`}
           </Text>
 
-          {currentTask < tasks.length - 1 ? (
-            <div style={{ marginTop: 16 }}>
-              <Button type="primary" onClick={handleNext}>
-                Next Challenge →
+          <div style={{ marginTop: 12 }}>
+            {currentTask < tasks.length - 1 ? (
+              <Button
+                type="primary"
+                onClick={handleNext}
+              >
+                Next Challenge
               </Button>
-            </div>
-          ) : (
-            <div style={{ marginTop: 16 }}>
-              <Title level={3}>🎉 SQL Quest Complete!</Title>
-
-              <Text>
-                You earned <strong>{totalXP} XP</strong>.
+            ) : (
+              <Text strong>
+                SQL Quest complete — {totalXP} XP earned.
               </Text>
-            </div>
-          )}
-        </Card>
+            )}
+          </div>
+        </div>
       )}
     </Card>
   );

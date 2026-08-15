@@ -1,11 +1,8 @@
-
 import { useState } from "react";
 import {
-  Alert,
   Button,
   Card,
   Col,
-  Divider,
   Input,
   Progress,
   Row,
@@ -18,6 +15,10 @@ import {
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
 
+/* =========================================================
+   TYPES
+========================================================= */
+
 interface Clue {
   question: string;
   hint: string;
@@ -25,7 +26,12 @@ interface Clue {
   correctQuery: string;
   result: string[];
   explanation: string;
+  xp: number;
 }
+
+/* =========================================================
+   CLUES
+========================================================= */
 
 const clues: Clue[] = [
   {
@@ -39,35 +45,38 @@ WHERE submitted = 'No';
 `,
     result: ["John"],
     explanation:
-      "SELECT chooses the data you want to see, while WHERE filters the rows. Here, submitted = 'No' keeps only the students who did not submit the homework.",
+      "WHERE filters rows based on a condition. Here, submitted = 'No' keeps only the student who did not submit the homework.",
+    xp: 10,
   },
 
   {
     question: "Which students have submitted Homework 1?",
-    hint: "Look for students whose submitted value is 'Yes'.",
+    hint: "Look for rows where submitted is 'Yes'.",
     skills: ["SELECT", "WHERE"],
     correctQuery: `
 SELECT *
 FROM submissions
 WHERE submitted = 'Yes';
 `,
-    result: ["Anna", "Mike"],
+    result: ["Anna", "Mike", "Sarah", "Lisa"],
     explanation:
-      "SELECT chooses the columns you want to see, while WHERE filters the submissions table. By using submitted = 'Yes', we keep only the students who submitted their homework.",
+      "WHERE filters the submissions table so that only students with submitted = 'Yes' are returned.",
+    xp: 10,
   },
 
   {
     question: "How many students have submitted Homework 1?",
-    hint: "You need to count the submitted rows.",
+    hint: "Filter the submitted rows, then count them.",
     skills: ["SELECT", "WHERE", "COUNT()"],
     correctQuery: `
 SELECT COUNT(*)
 FROM submissions
 WHERE submitted = 'Yes';
 `,
-    result: ["2"],
+    result: ["4"],
     explanation:
-      "COUNT(*) counts the number of rows that match the condition. WHERE first filters the table to submitted homework, and SELECT COUNT(*) counts those rows.",
+      "WHERE selects only submitted homework, and COUNT(*) counts the rows that remain.",
+    xp: 10,
   },
 
   {
@@ -82,30 +91,151 @@ ORDER BY age ASC;
     result: [
       "Sarah — 17",
       "Anna — 19",
+      "Lisa — 20",
       "Mike — 22",
       "John — 25",
     ],
     explanation:
-      "SELECT chooses the name and age columns. ORDER BY sorts the results. ASC means ascending, so the students are displayed from the youngest to the oldest.",
+      "ORDER BY sorts the results. ASC means ascending, so the youngest students appear first.",
+    xp: 10,
+  },
+
+  {
+    question: "Show the students from oldest to youngest.",
+    hint: "ORDER BY can sort in descending order.",
+    skills: ["SELECT", "ORDER BY", "DESC"],
+    correctQuery: `
+SELECT name, age
+FROM students
+ORDER BY age DESC;
+`,
+    result: [
+      "John — 25",
+      "Mike — 22",
+      "Lisa — 20",
+      "Anna — 19",
+      "Sarah — 17",
+    ],
+    explanation:
+      "DESC sorts values from largest to smallest, so the oldest student appears first.",
+    xp: 10,
+  },
+
+  {
+    question: "Which students are older than 20?",
+    hint: "Use a comparison operator with age.",
+    skills: ["SELECT", "WHERE", ">"],
+    correctQuery: `
+SELECT name, age
+FROM students
+WHERE age > 20;
+`,
+    result: [
+      "Mike — 22",
+      "John — 25",
+    ],
+    explanation:
+      "The > operator keeps only rows where age is greater than 20.",
+    xp: 10,
+  },
+
+  {
+    question: "Which students are 20 or younger?",
+    hint: "Use <= with the age column.",
+    skills: ["SELECT", "WHERE", "<="],
+    correctQuery: `
+SELECT name, age
+FROM students
+WHERE age <= 20;
+`,
+    result: [
+      "Sarah — 17",
+      "Anna — 19",
+      "Lisa — 20",
+    ],
+    explanation:
+      "The <= operator includes values that are equal to 20 as well as values below 20.",
+    xp: 10,
+  },
+
+  {
+    question: "How many students are older than 20?",
+    hint: "Filter the students first, then count them.",
+    skills: ["SELECT", "WHERE", "COUNT()"],
+    correctQuery: `
+SELECT COUNT(*)
+FROM students
+WHERE age > 20;
+`,
+    result: ["2"],
+    explanation:
+      "WHERE filters the students to those older than 20, and COUNT(*) counts those rows.",
+    xp: 10,
+  },
+
+  {
+    question: "What is the average age of the students?",
+    hint: "Use the AVG function.",
+    skills: ["SELECT", "AVG()"],
+    correctQuery: `
+SELECT AVG(age)
+FROM students;
+`,
+    result: ["20.6"],
+    explanation:
+      "AVG(age) calculates the arithmetic mean of all values in the age column.",
+    xp: 10,
+  },
+
+  {
+    question: "What is the youngest age in the class?",
+    hint: "Use MIN with the age column.",
+    skills: ["SELECT", "MIN()"],
+    correctQuery: `
+SELECT MIN(age)
+FROM students;
+`,
+    result: ["17"],
+    explanation:
+      "MIN(age) returns the smallest value in the age column.",
+    xp: 10,
+  },
+
+  {
+    question: "What is the oldest age in the class?",
+    hint: "Use MAX with the age column.",
+    skills: ["SELECT", "MAX()"],
+    correctQuery: `
+SELECT MAX(age)
+FROM students;
+`,
+    result: ["25"],
+    explanation:
+      "MAX(age) returns the largest value in the age column.",
+    xp: 10,
   },
 
   {
     question: "How many students are enrolled in each course?",
-    hint: "You need to group students by course and count them.",
+    hint: "Group students by course and count each group.",
     skills: ["SELECT", "GROUP BY", "COUNT()"],
     correctQuery: `
 SELECT course, COUNT(*)
 FROM students
 GROUP BY course;
 `,
-    result: ["SQL — 4"],
+    result: [
+      "Python — 1",
+      "SQL — 4",
+    ],
     explanation:
-      "GROUP BY puts rows with the same course together. COUNT(*) then tells us how many students are in each group.",
+      "GROUP BY creates one group for each course. COUNT(*) then counts the students in each group.",
+    xp: 15,
   },
 
   {
     question: "Which courses have more than 2 students?",
-    hint: "Use GROUP BY to create groups, then HAVING to filter those groups.",
+    hint: "Use GROUP BY first, then HAVING to filter the groups.",
     skills: ["SELECT", "GROUP BY", "HAVING", "COUNT()"],
     correctQuery: `
 SELECT course, COUNT(*)
@@ -115,9 +245,142 @@ HAVING COUNT(*) > 2;
 `,
     result: ["SQL — 4"],
     explanation:
-      "GROUP BY creates a group for each course. COUNT(*) counts the students in each group, and HAVING filters those groups based on the count.",
+      "HAVING filters groups after GROUP BY has created them. Here we keep only courses with more than two students.",
+    xp: 15,
+  },
+
+  {
+    question: "Show the three oldest students.",
+    hint: "Sort by age from highest to lowest and limit the results.",
+    skills: ["SELECT", "ORDER BY", "LIMIT"],
+    correctQuery: `
+SELECT name, age
+FROM students
+ORDER BY age DESC
+LIMIT 3;
+`,
+    result: [
+      "John — 25",
+      "Mike — 22",
+      "Lisa — 20",
+    ],
+    explanation:
+      "ORDER BY DESC puts the oldest students first, and LIMIT 3 keeps only the first three rows.",
+    xp: 15,
+  },
+
+  {
+    question: "Show the two youngest students.",
+    hint: "Sort age in ascending order and limit the results.",
+    skills: ["SELECT", "ORDER BY", "LIMIT"],
+    correctQuery: `
+SELECT name, age
+FROM students
+ORDER BY age ASC
+LIMIT 2;
+`,
+    result: [
+      "Sarah — 17",
+      "Anna — 19",
+    ],
+    explanation:
+      "Sorting by age ASC puts the youngest students first. LIMIT 2 returns only the first two rows.",
+    xp: 15,
+  },
+
+  {
+    question: "Which students are enrolled in SQL?",
+    hint: "Filter the course column.",
+    skills: ["SELECT", "WHERE"],
+    correctQuery: `
+SELECT name
+FROM students
+WHERE course = 'SQL';
+`,
+    result: [
+      "Anna",
+      "Mike",
+      "Sarah",
+      "John",
+    ],
+    explanation:
+      "WHERE course = 'SQL' keeps only students enrolled in the SQL course.",
+    xp: 10,
+  },
+
+  {
+    question: "How many students are enrolled in SQL?",
+    hint: "Filter the SQL students and count them.",
+    skills: ["SELECT", "WHERE", "COUNT()"],
+    correctQuery: `
+SELECT COUNT(*)
+FROM students
+WHERE course = 'SQL';
+`,
+    result: ["4"],
+    explanation:
+      "WHERE selects students in the SQL course, and COUNT(*) tells us how many there are.",
+    xp: 10,
+  },
+
+  {
+    question: "Show the students whose age is between 18 and 22.",
+    hint: "BETWEEN checks whether a value falls within a range.",
+    skills: ["SELECT", "WHERE", "BETWEEN"],
+    correctQuery: `
+SELECT name, age
+FROM students
+WHERE age BETWEEN 18 AND 22;
+`,
+    result: [
+      "Anna — 19",
+      "Lisa — 20",
+      "Mike — 22",
+    ],
+    explanation:
+      "BETWEEN checks whether a value falls within an inclusive range. Here, ages 18 through 22 are included.",
+    xp: 15,
+  },
+
+  {
+    question: "Show the students who are either 17 or 25 years old.",
+    hint: "Use OR when either condition can be true.",
+    skills: ["SELECT", "WHERE", "OR"],
+    correctQuery: `
+SELECT name, age
+FROM students
+WHERE age = 17 OR age = 25;
+`,
+    result: [
+      "Sarah — 17",
+      "John — 25",
+    ],
+    explanation:
+      "OR allows either condition to be true. The query returns students whose age is 17 or 25.",
+    xp: 15,
+  },
+
+  {
+    question: "Which students have not submitted Homework 1?",
+    hint: "Connect the students and submissions tables using student_id.",
+    skills: ["SELECT", "LEFT JOIN", "WHERE"],
+    correctQuery: `
+SELECT students.name
+FROM students
+LEFT JOIN submissions
+  ON students.id = submissions.student_id
+WHERE submissions.submitted = 'No';
+`,
+    result: ["John"],
+    explanation:
+      "LEFT JOIN connects students to their submissions using the student ID. WHERE then identifies the student whose submission is marked 'No'.",
+    xp: 20,
   },
 ];
+
+/* =========================================================
+   DATABASE
+========================================================= */
 
 const students = [
   {
@@ -148,6 +411,13 @@ const students = [
     age: 25,
     course: "SQL",
   },
+  {
+    key: "5",
+    id: 5,
+    name: "Lisa",
+    age: 20,
+    course: "Python",
+  },
 ];
 
 const submissions = [
@@ -165,11 +435,27 @@ const submissions = [
   },
   {
     key: "3",
+    student_id: 3,
+    assignment: "Homework 1",
+    submitted: "Yes",
+  },
+  {
+    key: "4",
     student_id: 4,
     assignment: "Homework 1",
     submitted: "No",
   },
+  {
+    key: "5",
+    student_id: 5,
+    assignment: "Homework 1",
+    submitted: "Yes",
+  },
 ];
+
+/* =========================================================
+   TABLE COLUMNS
+========================================================= */
 
 const studentColumns = [
   {
@@ -212,6 +498,10 @@ const submissionColumns = [
   },
 ];
 
+/* =========================================================
+   QUERY NORMALIZATION
+========================================================= */
+
 const normalizeQuery = (query: string) =>
   query
     .trim()
@@ -219,27 +509,43 @@ const normalizeQuery = (query: string) =>
     .replace(/\s+/g, " ")
     .replace(/;$/, "");
 
+/* =========================================================
+   COMPONENT
+========================================================= */
+
 const SQLDetective = () => {
   const [currentClue, setCurrentClue] = useState(0);
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [solved, setSolved] = useState(false);
   const [caseComplete, setCaseComplete] = useState(false);
+  const [score, setScore] = useState(0);
 
   const clue = clues[currentClue];
 
+  /* -------------------------------------------------------
+     CHECK QUERY
+  ------------------------------------------------------- */
+
   const runQuery = () => {
+    if (submitted) return;
+
     const userQuery = normalizeQuery(query);
     const correctQuery = normalizeQuery(clue.correctQuery);
 
-    setSubmitted(true);
+    const isCorrect = userQuery === correctQuery;
 
-    if (userQuery === correctQuery) {
-      setSolved(true);
-    } else {
-      setSolved(false);
+    setSubmitted(true);
+    setSolved(isCorrect);
+
+    if (isCorrect) {
+      setScore((previous) => previous + clue.xp);
     }
   };
+
+  /* -------------------------------------------------------
+     NEXT CLUE
+  ------------------------------------------------------- */
 
   const nextClue = () => {
     if (currentClue === clues.length - 1) {
@@ -253,214 +559,258 @@ const SQLDetective = () => {
     setSolved(false);
   };
 
-  const isLastClue = currentClue === clues.length - 1;
+  /* -------------------------------------------------------
+     PROGRESS
+  ------------------------------------------------------- */
 
   const progressPercent = caseComplete
     ? 100
     : Math.round(
-        ((currentClue + (submitted ? 1 : 0)) / clues.length) * 100
+        ((currentClue + (submitted ? 1 : 0)) /
+          clues.length) *
+          100
       );
 
+  const maxScore = clues.reduce(
+    (total, clueItem) => total + clueItem.xp,
+    0
+  );
+
+  /* =======================================================
+     RENDER
+  ======================================================= */
+
   return (
-    <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-      {/* Header */}
+    <Card
+      style={{
+        maxWidth: 1000,
+        margin: "0 auto",
+      }}
+      styles={{
+        body: {
+          padding: 24,
+        },
+      }}
+    >
+      {/* HEADER */}
 
-      <Space direction="vertical" size={4}>
-        <Tag color="purple">SQL LEARNING LAB</Tag>
-
-        <Title level={1} style={{ margin: 0 }}>
-          🕵️ SQL Detective
-        </Title>
-
-        <Text type="secondary">
-          Solve the mystery by using SQL to uncover the evidence.
-        </Text>
-      </Space>
-
-      <Divider />
-
-      {/* Case Introduction */}
-
-      <Card style={{ marginBottom: 24 }}>
-        <Space align="start">
-          <span style={{ fontSize: 40 }}>🗂️</span>
-
-          <div>
-            <Title level={3} style={{ marginTop: 0 }}>
-              The Mystery of the Missing Homework
-            </Title>
-
-            <Paragraph type="secondary">
-              Three students claim they submitted their homework.
-              Use SQL to investigate what really happened.
-            </Paragraph>
-
-            <Tag color="blue">CASE #001</Tag>
-          </div>
-        </Space>
-      </Card>
-
-      {/* Progress */}
-
-      <Card size="small" style={{ marginBottom: 24 }}>
-        <Space direction="vertical" style={{ width: "100%" }}>
-          <Text strong>Investigation progress</Text>
-
-          <Progress
-            percent={progressPercent}
-            status={
-              caseComplete
-                ? "success"
-                : solved
-                ? "success"
-                : "active"
-            }
-          />
-
-          <Title level={5} style={{ marginBottom: 0 }}>
-            Detective skills practiced
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          gap: 16,
+        }}
+      >
+        <div>
+          <Title
+            level={2}
+            style={{
+              margin: 0,
+            }}
+          >
+            SQL Detective
           </Title>
 
-          <Space direction="vertical" style={{ width: "100%" }}>
-            {clues.map((clueItem, index) => (
-              <Space key={index} wrap>
-                <Tag
-                  color={
-                    caseComplete || index < currentClue
-                      ? "green"
-                      : index === currentClue
-                      ? "blue"
-                      : "default"
-                  }
-                >
-                  {caseComplete || index < currentClue
-                    ? "✓"
-                    : `Clue ${index + 1}`}
-                </Tag>
+          <Text type="secondary">
+            The Mystery of the Missing Homework
+          </Text>
+        </div>
 
-                {clueItem.skills.map((skill) => (
-                  <Tag key={skill} color="purple">
-                    {skill}
-                  </Tag>
-                ))}
-              </Space>
-            ))}
-          </Space>
+        <Space size="large">
+          <Text type="secondary">
+            Clue {currentClue + 1} of {clues.length}
+          </Text>
+
+          <Text strong>
+            {score} XP
+          </Text>
         </Space>
-      </Card>
+      </div>
 
-      {/* Investigation Complete */}
+      {/* PROGRESS */}
+
+      <Progress
+        percent={progressPercent}
+        showInfo={false}
+        size="small"
+        style={{
+          marginTop: 16,
+        }}
+      />
+
+      {/* =================================================
+          COMPLETION SCREEN
+      ================================================= */}
 
       {caseComplete ? (
-        <Card
+        <div
           style={{
             textAlign: "center",
-            padding: "30px 20px",
+            padding: "56px 20px 32px",
           }}
         >
-          <div style={{ fontSize: 60 }}>🎉</div>
-
-          <Title level={2}>
-            Investigation Complete!
+          <Title level={3}>
+            Investigation complete
           </Title>
-
-          <Paragraph style={{ fontSize: 16 }}>
-            Great work, Detective! 🕵️
-          </Paragraph>
 
           <Paragraph type="secondary">
-            You made it through the entire case and practiced
-            some important SQL skills along the way.
-            Every query makes you a better SQL detective!
+            You solved all {clues.length} SQL clues.
           </Paragraph>
 
-          <Divider />
-
-          <Title level={4}>
-            Detective skills practiced
+          <Title
+            level={2}
+            style={{
+              marginTop: 24,
+            }}
+          >
+            {score} / {maxScore} XP
           </Title>
 
-          <Space wrap>
-            <Tag color="blue">SELECT</Tag>
-            <Tag color="green">WHERE</Tag>
-            <Tag color="purple">COUNT()</Tag>
-            <Tag color="orange">ORDER BY</Tag>
-            <Tag color="cyan">GROUP BY</Tag>
-            <Tag color="magenta">HAVING</Tag>
-          </Space>
-        </Card>
-      ) : (
-        <Row gutter={[24, 24]}>
-          {/* Database */}
+          <Paragraph type="secondary">
+            {score === maxScore
+              ? "Excellent work. You solved every clue."
+              : score >= maxScore * 0.7
+              ? "Great work. You demonstrated strong SQL skills."
+              : "Good start. Review the clues and keep practicing."}
+          </Paragraph>
 
-          <Col xs={24} lg={11}>
-            <Card title="🗄️ Database">
-              <Card
-                type="inner"
-                title={<Text code>students</Text>}
-                style={{ marginBottom: 16 }}
-              >
+          <Space
+            wrap
+            size={[6, 6]}
+            style={{
+              marginTop: 16,
+            }}
+          >
+            {[
+              "SELECT",
+              "WHERE",
+              "COUNT()",
+              "ORDER BY",
+              "GROUP BY",
+              "HAVING",
+              "JOIN",
+            ].map((skill) => (
+              <Tag key={skill}>
+                {skill}
+              </Tag>
+            ))}
+          </Space>
+        </div>
+      ) : (
+        <>
+          {/* =================================================
+              DATABASE
+          ================================================= */}
+
+          <div
+            style={{
+              marginTop: 28,
+            }}
+          >
+            <Text strong>
+              Database
+            </Text>
+
+            <Row
+              gutter={[16, 16]}
+              style={{
+                marginTop: 10,
+              }}
+            >
+              <Col xs={24} md={12}>
+                <Text type="secondary">
+                  students
+                </Text>
+
                 <Table
                   columns={studentColumns}
                   dataSource={students}
                   pagination={false}
                   size="small"
+                  style={{
+                    marginTop: 6,
+                  }}
                 />
-              </Card>
+              </Col>
 
-              <Card
-                type="inner"
-                title={<Text code>submissions</Text>}
-              >
+              <Col xs={24} md={12}>
+                <Text type="secondary">
+                  submissions
+                </Text>
+
                 <Table
                   columns={submissionColumns}
                   dataSource={submissions}
                   pagination={false}
                   size="small"
+                  style={{
+                    marginTop: 6,
+                  }}
                 />
-              </Card>
-            </Card>
-          </Col>
+              </Col>
+            </Row>
+          </div>
 
-          {/* Challenge */}
+          {/* =================================================
+              CLUE
+          ================================================= */}
 
-          <Col xs={24} lg={13}>
-            <Card
-              title={
-                <Space wrap>
-                  <Tag color="blue">
-                    🔎 CLUE {currentClue + 1}
-                  </Tag>
+          <div
+            style={{
+              marginTop: 32,
+              paddingTop: 24,
+              borderTop: "1px solid #f0f0f0",
+            }}
+          >
+            <Text type="secondary">
+              Clue {currentClue + 1}
+            </Text>
 
-                  <Text type="secondary">
-                    {currentClue + 1} / {clues.length}
-                  </Text>
-
-                  <Text type="secondary">
-                    Skills practiced:
-                  </Text>
-
-                  {clue.skills.map((skill) => (
-                    <Tag key={skill} color="purple">
-                      {skill}
-                    </Tag>
-                  ))}
-                </Space>
-              }
+            <Title
+              level={4}
+              style={{
+                marginTop: 6,
+                marginBottom: 10,
+              }}
             >
-              <Title level={2}>
-                {clue.question}
-              </Title>
+              {clue.question}
+            </Title>
 
-              <Alert
-                message="Hint"
-                description={clue.hint}
-                type="info"
-                showIcon
-                style={{ marginBottom: 20 }}
-              />
+            {/* SKILLS */}
 
-              <Text strong>Your SQL query</Text>
+            <Space
+              wrap
+              size={[6, 6]}
+              style={{
+                marginBottom: 12,
+              }}
+            >
+              {clue.skills.map((skill) => (
+                <Tag key={skill}>
+                  {skill}
+                </Tag>
+              ))}
+            </Space>
+
+            {/* HINT */}
+
+            <div>
+              <Text type="secondary">
+                Hint: {clue.hint}
+              </Text>
+            </div>
+
+            {/* QUERY */}
+
+            <div
+              style={{
+                marginTop: 20,
+              }}
+            >
+              <Text type="secondary">
+                Your SQL query
+              </Text>
 
               <TextArea
                 value={query}
@@ -468,125 +818,164 @@ const SQLDetective = () => {
                   setQuery(event.target.value)
                 }
                 placeholder="SELECT ..."
-                autoSize={{ minRows: 7, maxRows: 14 }}
+                autoSize={{
+                  minRows: 5,
+                  maxRows: 10,
+                }}
                 spellCheck={false}
+                disabled={submitted}
                 style={{
                   marginTop: 8,
                   fontFamily: "monospace",
                 }}
               />
+            </div>
 
-              <Button
-                type="primary"
-                size="large"
-                block
-                style={{ marginTop: 16 }}
-                onClick={runQuery}
-              >
-                ▶ Check Query
-              </Button>
+            {/* CHECK */}
 
-              {/* Incorrect Answer */}
+            <Button
+              type="primary"
+              onClick={runQuery}
+              disabled={!query.trim() || submitted}
+              style={{
+                marginTop: 16,
+              }}
+            >
+              Check Query
+            </Button>
+          </div>
 
-              {submitted && !solved && (
-                <Card
-                  title="💡 Let's look at the answer"
-                  style={{ marginTop: 20 }}
-                >
-                  <Alert
-                    message="Not quite — and that's okay!"
-                    description="Here's the correct way to solve this clue."
-                    type="warning"
-                    showIcon
-                  />
+          {/* =================================================
+              FEEDBACK
+          ================================================= */}
 
-                  <Divider />
+          {submitted && (
+            <div
+              style={{
+                marginTop: 24,
+                paddingTop: 20,
+                borderTop: "1px solid #f0f0f0",
+              }}
+            >
+              {solved ? (
+                <>
+                  <Text
+                    strong
+                    type="success"
+                  >
+                    Correct · +{clue.xp} XP
+                  </Text>
 
-                  <Text strong>Correct query:</Text>
-
-                  <pre
+                  <Paragraph
                     style={{
-                      padding: 16,
                       marginTop: 8,
-                      background: "#f5f5f5",
-                      borderRadius: 8,
-                      overflowX: "auto",
                     }}
                   >
-                    {clue.correctQuery.trim()}
-                  </pre>
-
-                  <Text strong>Why it works:</Text>
-
-                  <Paragraph style={{ marginTop: 8 }}>
                     {clue.explanation}
                   </Paragraph>
 
-                  <Button
-                    type="primary"
-                    block
-                    size="large"
-                    onClick={nextClue}
+                  <Text type="secondary">
+                    Query result
+                  </Text>
+
+                  <div
+                    style={{
+                      marginTop: 8,
+                    }}
                   >
-                    {isLastClue
-                      ? "Got it → Finish Investigation"
-                      : "Got it → Next Clue"}
-                  </Button>
-                </Card>
-              )}
+                    {clue.result.map(
+                      (item, index) => (
+                        <div key={index}>
+                          <Text code>
+                            {item}
+                          </Text>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Text strong>
+                    Not quite
+                  </Text>
 
-              {/* Correct Answer */}
+                  <Paragraph
+                    type="secondary"
+                    style={{
+                      marginTop: 8,
+                    }}
+                  >
+                    Compare your query with the
+                    solution and review what each
+                    clause is doing.
+                  </Paragraph>
 
-              {submitted && solved && (
-                <Card
-                  style={{
-                    marginTop: 20,
-                    background: "#f6ffed",
-                  }}
-                >
-                  <Alert
-                    message="✓ Correct!"
-                    description={clue.explanation}
-                    type="success"
-                    showIcon
-                  />
+                  {/* ANSWER */}
 
-                  <Divider />
-
-                  <Text strong>Query result:</Text>
-
-                  <div style={{ marginTop: 10 }}>
-                    {clue.result.map((item, index) => (
-                      <Tag
-                        key={index}
-                        color="green"
-                        style={{ marginBottom: 8 }}
-                      >
-                        {item}
-                      </Tag>
-                    ))}
+                  <div
+                    style={{
+                      marginTop: 12,
+                      padding: 16,
+                      background: "#fafafa",
+                      borderRadius: 6,
+                      border:
+                        "1px solid #f0f0f0",
+                      overflowX: "auto",
+                    }}
+                  >
+                    <Text
+                      code
+                      style={{
+                        whiteSpace: "pre-wrap",
+                      }}
+                    >
+                      {clue.correctQuery.trim()}
+                    </Text>
                   </div>
 
-                  <Button
-                    type="primary"
-                    block
-                    size="large"
-                    style={{ marginTop: 16 }}
-                    onClick={nextClue}
+                  {/* EXPLANATION */}
+
+                  <div
+                    style={{
+                      marginTop: 16,
+                    }}
                   >
-                    {isLastClue
-                      ? "Finish Investigation →"
-                      : "Next Clue →"}
-                  </Button>
-                </Card>
+                    <Text type="secondary">
+                      Why it works
+                    </Text>
+
+                    <Paragraph
+                      style={{
+                        marginTop: 6,
+                      }}
+                    >
+                      {clue.explanation}
+                    </Paragraph>
+                  </div>
+                </>
               )}
-            </Card>
-          </Col>
-        </Row>
+
+              {/* NEXT */}
+
+              <Button
+                type="primary"
+                onClick={nextClue}
+                style={{
+                  marginTop: 8,
+                }}
+              >
+                {currentClue ===
+                clues.length - 1
+                  ? "Finish Investigation"
+                  : "Next Clue"}
+              </Button>
+            </div>
+          )}
+        </>
       )}
-    </div>
+    </Card>
   );
 };
 
 export default SQLDetective;
-
