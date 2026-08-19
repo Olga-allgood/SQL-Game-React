@@ -1,98 +1,141 @@
-
 import { useState } from "react";
+
 import {
-  Layout,
-  Menu,
   Card,
   Descriptions,
+  Layout,
+  Menu,
   Typography,
 } from "antd";
+
 import {
+  FilterOutlined,
   ReadOutlined,
   UserOutlined,
-  SmileOutlined,
-  SearchOutlined,
 } from "@ant-design/icons";
 
-import { QueryBuilder } from "../components/QueryBuilder";
-import SQLDetective from "../components/SQLDetective";
-import {SQLCards} from "../components/SQLCards";
-import SQLInvestigator from "../components/SQLInvestigator";
-import SQLCaseFile from "../components/SQLCaseFile";
-import SQLChallenge from "../components/SQLChallenge";
+import ReadingQuery from "./sql/ReadingQuery";
+import FilteringData from "./sql/FilteringData";
 
-const { Sider, Content } = Layout;
+const {
+  Sider,
+  Content,
+} = Layout;
+
 const { Title } = Typography;
 
 export default function Student() {
-  const [selectedMenu, setSelectedMenu] = useState("profile");
+  const [
+    selectedMenu,
+    setSelectedMenu,
+  ] = useState("reading-query");
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider>
+    <Layout
+      style={{
+        minHeight: "100vh",
+      }}
+    >
+      {/* =====================================================
+          SIDEBAR
+      ===================================================== */}
+
+      <Sider
+        width={260}
+        style={{
+          minHeight: "100vh",
+        }}
+      >
+        {/* APP TITLE */}
+
         <div
           style={{
             color: "white",
-            fontSize: "20px",
+            fontSize: 20,
             fontWeight: "bold",
-            padding: "20px",
+            padding: 20,
           }}
         >
-          Learning App
+          SQL Learning Lab
         </div>
+
+        {/* NAVIGATION */}
 
         <Menu
           theme="dark"
           mode="inline"
-          selectedKeys={[selectedMenu]}
-          onClick={(item) => setSelectedMenu(item.key)}
+          selectedKeys={[
+            selectedMenu,
+          ]}
+          onClick={({ key }) =>
+            setSelectedMenu(key)
+          }
           items={[
             {
               key: "profile",
-              icon: <UserOutlined />,
+              icon: (
+                <UserOutlined />
+              ),
               label: "My Profile",
             },
+
             {
-            key: "SQL-cards",
-            icon: <ReadOutlined />,
-            label: "SQL Cards",
-          },
-            {
-              key: "memory",
-              icon: <SmileOutlined />,
-              label: "Memory Game",
+              type: "group",
+              label: "SQL FOUNDATIONS",
+
+              children: [
+                {
+                  key:
+                    "reading-query",
+
+                  icon: (
+                    <ReadOutlined />
+                  ),
+
+                  label:
+                    "1. Reading a Query",
+                },
+
+                {
+                  key:
+                    "filtering-data",
+
+                  icon: (
+                    <FilterOutlined />
+                  ),
+
+                  label:
+                    "2. Filtering Data",
+                },
+              ],
             },
-            {
-              key: "detective",
-              icon: <SearchOutlined />,
-              label: "SQL Detective",
-            },
-                        {
-              key: "investigator",
-              icon: <SearchOutlined />,
-              label: "SQL Investigator",
-            },
-                                    {
-              key: "casefile",
-              icon: <SearchOutlined />,
-              label: "SQL Case File",
-            },
-                  
-             {
-              key: "challenge",
-              icon: <SearchOutlined />,
-              label: "SQL Challenge",
-            },
-            
           ]}
         />
       </Sider>
 
+      {/* =====================================================
+          MAIN CONTENT
+      ===================================================== */}
+
       <Layout>
-        <Content style={{ padding: "30px" }}>
-          {selectedMenu === "profile" && (
+        <Content
+          style={{
+            padding: 30,
+            width: "100%",
+            maxWidth: 1200,
+            margin: "0 auto",
+          }}
+        >
+          {/* =================================================
+              PROFILE
+          ================================================= */}
+
+          {selectedMenu ===
+            "profile" && (
             <>
-              <Title level={2}>My Profile</Title>
+              <Title level={2}>
+                My Profile
+              </Title>
 
               <Card>
                 <Descriptions>
@@ -107,20 +150,26 @@ export default function Student() {
               </Card>
             </>
           )}
-          {selectedMenu === "SQL-cards" && <SQLCards />}
 
-          {selectedMenu === "memory" && <QueryBuilder />}
+          {/* =================================================
+              LEVEL 1
+          ================================================= */}
 
-          {selectedMenu === "detective" && <SQLDetective />}
+          {selectedMenu ===
+            "reading-query" && (
+            <ReadingQuery />
+          )}
 
-           {selectedMenu === "investigator" && <SQLInvestigator />}
+          {/* =================================================
+              LEVEL 2
+          ================================================= */}
 
-           {selectedMenu === "casefile" && <SQLCaseFile />}
-
-           {selectedMenu === "challenge" && <SQLChallenge />}
+          {selectedMenu ===
+            "filtering-data" && (
+            <FilteringData />
+          )}
         </Content>
       </Layout>
     </Layout>
   );
 }
-
