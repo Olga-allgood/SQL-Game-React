@@ -1,14 +1,24 @@
-import { Routes, Route } from "react-router-dom";
-
+import {
+  Routes,
+  Route,
+} from "react-router-dom";
 
 import Student from "./pages/Student";
 
+import {
+  ProgressProvider,
+} from "./context/ProgressContext";
+
 function App() {
   return (
-    <Routes>
-
-      <Route path="/" element={<Student />} />
-    </Routes>
+    <ProgressProvider>
+      <Routes>
+        <Route
+          path="/"
+          element={<Student />}
+        />
+      </Routes>
+    </ProgressProvider>
   );
 }
 

@@ -17,13 +17,13 @@ import SQLCaseFile from "../../components/sql/SQLCaseFile";
 import SQLChallenge from "../../components/sql/SQLChallenge";
 
 import {
-  filteringCards,
+  sortingCards,
   recognitionTasks,
   builderTasks,
   detectiveTasks,
   caseFiles,
   challengeTasks,
-} from "../../data/sql/filteringData";
+} from "../../data/sql/sortingResults";
 
 import {
   useProgress,
@@ -36,9 +36,9 @@ const {
 } = Typography;
 
 const LEVEL_KEY =
-  "filtering-data";
+  "sorting-results";
 
-export default function FilteringData() {
+export default function SortingResults() {
   const [
     activity,
     setActivity,
@@ -49,6 +49,10 @@ export default function FilteringData() {
     markTaskSolved,
     markAnswerRevealed,
   } = useProgress();
+
+  /* =========================================================
+     LEVEL PROGRESS
+  ========================================================= */
 
   const levelProgress =
     getLevelProgress(
@@ -66,7 +70,7 @@ export default function FilteringData() {
     );
 
   /* =========================================================
-     TOTAL TASKS
+     TOTAL ASSESSED TASKS
   ========================================================= */
 
   const totalTasks =
@@ -86,7 +90,7 @@ export default function FilteringData() {
         );
 
   /* =========================================================
-     PROGRESS CALLBACKS
+     HANDLE SOLVED
   ========================================================= */
 
   const handleSolved = (
@@ -100,6 +104,10 @@ export default function FilteringData() {
     );
   };
 
+  /* =========================================================
+     HANDLE REVEAL
+  ========================================================= */
+
   const handleReveal = (
     activityKey,
     taskId
@@ -112,7 +120,7 @@ export default function FilteringData() {
   };
 
   /* =========================================================
-     RENDER
+     RENDER ACTIVITY
   ========================================================= */
 
   const renderActivity = () => {
@@ -121,7 +129,7 @@ export default function FilteringData() {
         return (
           <SQLCards
             cards={
-              filteringCards
+              sortingCards
             }
           />
         );
@@ -238,7 +246,9 @@ export default function FilteringData() {
 
   return (
     <>
-      {/* LEVEL HEADER */}
+      {/* =====================================================
+          LEVEL HEADER
+      ===================================================== */}
 
       <div
         style={{
@@ -247,7 +257,7 @@ export default function FilteringData() {
       >
         <Space>
           <Tag color="blue">
-            Level 2
+            Level 3
           </Tag>
 
           <Text type="secondary">
@@ -262,19 +272,19 @@ export default function FilteringData() {
             marginBottom: 4,
           }}
         >
-          Filtering Data
+          Sorting & Controlling Results
         </Title>
 
         <Paragraph type="secondary">
-          Learn how to filter
-          rows using WHERE,
-          comparison operators,
-          AND, OR, NOT,
-          BETWEEN, IN, and LIKE.
+          Learn how to organize query
+          results with ORDER BY, ASC,
+          DESC, LIMIT, and DISTINCT.
         </Paragraph>
       </div>
 
-      {/* MASTERY */}
+      {/* =====================================================
+          MASTERY
+      ===================================================== */}
 
       <Card
         style={{
@@ -297,7 +307,7 @@ export default function FilteringData() {
                 margin: 0,
               }}
             >
-              Level 2 Mastery
+              Level 3 Mastery
             </Title>
 
             <Text type="secondary">
@@ -349,7 +359,9 @@ export default function FilteringData() {
         )}
       </Card>
 
-      {/* MENU */}
+      {/* =====================================================
+          LEARNING CYCLE
+      ===================================================== */}
 
       <Card
         styles={{

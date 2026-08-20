@@ -26,43 +26,73 @@ export const QueryBuilder = ({
 
   const task = tasks[currentTask];
 
-  const taskKey =
-    `build-${task.id}`;
+  const taskKey = `build-${task.id}`;
 
   const taskWasRevealed =
     revealedTasks.has(taskKey);
 
   const solvedInActivity =
     tasks.filter((item) =>
-      solvedTasks.has(
-        `build-${item.id}`
-      )
+      solvedTasks.has(`build-${item.id}`)
     ).length;
 
   const progress = Math.round(
-    (solvedInActivity /
-      tasks.length) *
-      100
+    (solvedInActivity / tasks.length) * 100
   );
 
+  /*
+    Store the index as well as the text.
+
+    This lets the builder support repeated pieces,
+    such as publication_year appearing twice.
+  */
+
+  const selectedIndexes =
+    selected.map((item) => item.index);
+
+  const builtQuery =
+    selected.map((item) => item.piece);
+
   /* =========================================================
-     ADD QUERY PIECE
+     ADD PIECE
   ========================================================= */
 
-  const handlePiece = (piece) => {
+  const handlePiece = (
+    piece,
+    index
+  ) => {
     if (
-      selected.includes(piece) ||
       submitted ||
-      showAnswer
+      showAnswer ||
+      selectedIndexes.includes(index)
     ) {
       return;
     }
 
-    setSelected(
-      (previous) => [
-        ...previous,
+    setSelected((previous) => [
+      ...previous,
+      {
         piece,
-      ]
+        index,
+      },
+    ]);
+  };
+
+  /* =========================================================
+     REMOVE LAST PIECE
+  ========================================================= */
+
+  const handleUndo = () => {
+    if (
+      submitted ||
+      showAnswer ||
+      selected.length === 0
+    ) {
+      return;
+    }
+
+    setSelected((previous) =>
+      previous.slice(0, -1)
     );
   };
 
@@ -72,7 +102,7 @@ export const QueryBuilder = ({
 
   const handleCheck = () => {
     const isCorrect =
-      JSON.stringify(selected) ===
+      JSON.stringify(builtQuery) ===
       JSON.stringify(task.answer);
 
     setSubmitted(true);
@@ -110,7 +140,10 @@ export const QueryBuilder = ({
     setCorrect(false);
     setShowAnswer(false);
 
-    // Keep hint visible.
+    /*
+      Keep hint visible if learner
+      has already requested it.
+    */
   };
 
   /* =========================================================
@@ -147,8 +180,7 @@ export const QueryBuilder = ({
     }
 
     setCurrentTask(
-      (previous) =>
-        previous + 1
+      (previous) => previous + 1
     );
 
     setSelected([]);
@@ -186,8 +218,8 @@ export const QueryBuilder = ({
           </Title>
 
           <Text type="secondary">
-            Assemble a basic SQL query
-            from building blocks.
+            Assemble the SQL query from
+            the available pieces.
           </Text>
         </div>
 
@@ -224,7 +256,8 @@ export const QueryBuilder = ({
         style={{
           marginTop: 28,
           paddingTop: 24,
-          borderTop: "1px solid #f0f0f0",
+          borderTop:
+            "1px solid #f0f0f0",
         }}
       >
         <Text type="secondary">
@@ -249,18 +282,19 @@ export const QueryBuilder = ({
             padding: 16,
             minHeight: 64,
             background: "#fafafa",
-            border: "1px solid #f0f0f0",
+            border:
+              "1px solid #f0f0f0",
             borderRadius: 6,
           }}
         >
           <Text code>
-            {selected.length
-              ? selected.join(" ")
+            {builtQuery.length
+              ? builtQuery.join(" ")
               : "Build your query..."}
           </Text>
         </div>
 
-        {/* PIECES */}
+        {/* QUERY PIECES */}
 
         {!showAnswer && (
           <Space
@@ -269,24 +303,31 @@ export const QueryBuilder = ({
               marginTop: 16,
             }}
           >
-            {task.pieces.map((piece) => (
-              <Button
-                key={piece}
-                onClick={() =>
-                  handlePiece(piece)
-                }
-                disabled={
-                  selected.includes(piece) ||
-                  submitted
-                }
-              >
-                {piece}
-              </Button>
-            ))}
+            {task.pieces.map(
+              (piece, index) => (
+                <Button
+                  key={`${piece}-${index}`}
+                  onClick={() =>
+                    handlePiece(
+                      piece,
+                      index
+                    )
+                  }
+                  disabled={
+                    selectedIndexes.includes(
+                      index
+                    ) ||
+                    submitted
+                  }
+                >
+                  {piece}
+                </Button>
+              )
+            )}
           </Space>
         )}
 
-        {/* ACTIONS */}
+        {/* INITIAL ACTIONS */}
 
         {!submitted &&
           !showAnswer && (
@@ -307,14 +348,28 @@ export const QueryBuilder = ({
               </Button>
 
               <Button
+                onClick={handleUndo}
+                disabled={
+                  selected.length === 0
+                }
+              >
+                Undo
+              </Button>
+
+              <Button
                 onClick={handleReset}
+                disabled={
+                  selected.length === 0
+                }
               >
                 Reset
               </Button>
 
               {!showHint && (
                 <Button
-                  onClick={handleShowHint}
+                  onClick={
+                    handleShowHint
+                  }
                 >
                   Show Hint
                 </Button>
@@ -323,39 +378,39 @@ export const QueryBuilder = ({
           )}
       </div>
 
-      {/* =====================================================
-          HINT
-      ===================================================== */}
+      {/* HINT */}
 
-      {showHint && !showAnswer && (
-        <div
-          style={{
-            marginTop: 18,
-            padding: 16,
-            background: "#fafafa",
-            border: "1px solid #d9d9d9",
-            borderRadius: 6,
-          }}
-        >
-          <Text strong>
-            💡 Hint
-          </Text>
-
-          <Paragraph
+      {showHint &&
+        !showAnswer && (
+          <div
             style={{
-              marginTop: 8,
-              marginBottom: 0,
+              marginTop: 18,
+              padding: 16,
+              background: "#fafafa",
+              border:
+                "1px solid #d9d9d9",
+              borderRadius: 6,
             }}
           >
-            {task.hint ||
-              "Remember the structure: SELECT tells SQL what to return, and FROM tells SQL where the data comes from."}
-          </Paragraph>
-        </div>
-      )}
+            <Text strong>
+              💡 Hint
+            </Text>
 
-      {/* FEEDBACK */}
+            <Paragraph
+              style={{
+                marginTop: 8,
+                marginBottom: 0,
+              }}
+            >
+              {task.hint}
+            </Paragraph>
+          </div>
+        )}
+
+      {/* INCORRECT */}
 
       {submitted &&
+        !correct &&
         !showAnswer && (
           <div
             style={{
@@ -364,82 +419,84 @@ export const QueryBuilder = ({
           >
             <Text
               strong
-              type={
-                correct
-                  ? "success"
-                  : "danger"
-              }
+              type="danger"
             >
-              {correct
-                ? "Correct!"
-                : "Not quite."}
+              Not quite.
             </Text>
 
-            {correct ? (
-              <>
-                <Paragraph
-                  style={{
-                    marginTop: 8,
-                  }}
+            <Space
+              wrap
+              style={{
+                marginTop: 12,
+              }}
+            >
+              <Button
+                type="primary"
+                onClick={
+                  handleTryAgain
+                }
+              >
+                Try Again
+              </Button>
+
+              {!showHint && (
+                <Button
+                  onClick={
+                    handleShowHint
+                  }
                 >
-                  {task.explanation}
-                </Paragraph>
+                  Show Hint
+                </Button>
+              )}
 
-                {taskWasRevealed && (
-                  <Text type="secondary">
-                    The answer was previously
-                    revealed, so this task does
-                    not count toward independent
-                    mastery.
-                  </Text>
-                )}
-              </>
-            ) : (
-              <>
-                <Paragraph
-                  type="secondary"
-                  style={{
-                    marginTop: 8,
-                  }}
-                >
-                  Think about the order of the
-                  SQL keywords and try again.
-                </Paragraph>
+              <Button
+                onClick={
+                  handleShowAnswer
+                }
+              >
+                Show Answer
+              </Button>
+            </Space>
+          </div>
+        )}
 
-                <Space wrap>
-                  <Button
-                    type="primary"
-                    onClick={
-                      handleTryAgain
-                    }
-                  >
-                    Try Again
-                  </Button>
+      {/* CORRECT */}
 
-                  {!showHint && (
-                    <Button
-                      onClick={
-                        handleShowHint
-                      }
-                    >
-                      Show Hint
-                    </Button>
-                  )}
+      {submitted &&
+        correct &&
+        !showAnswer && (
+          <div
+            style={{
+              marginTop: 20,
+            }}
+          >
+            <Text
+              strong
+              type="success"
+            >
+              Correct!
+            </Text>
 
-                  <Button
-                    onClick={
-                      handleShowAnswer
-                    }
-                  >
-                    Show Answer
-                  </Button>
-                </Space>
-              </>
+            <Paragraph
+              style={{
+                marginTop: 8,
+              }}
+            >
+              {task.explanation}
+            </Paragraph>
+
+            {taskWasRevealed && (
+              <Text type="secondary">
+                The answer was previously
+                revealed, so this task does
+                not count toward independent
+                mastery.
+              </Text>
             )}
           </div>
         )}
 
-      {/* ANSWER */}
+      {/* REVEALED ANSWER */}
 
       {showAnswer && (
         <div
@@ -447,7 +504,8 @@ export const QueryBuilder = ({
             marginTop: 20,
             padding: 16,
             background: "#fafafa",
-            border: "1px solid #f0f0f0",
+            border:
+              "1px solid #f0f0f0",
             borderRadius: 6,
           }}
         >
@@ -494,7 +552,9 @@ export const QueryBuilder = ({
           tasks.length - 1 ? (
             <Button
               type="primary"
-              onClick={handleNext}
+              onClick={
+                handleNext
+              }
             >
               Next Task
             </Button>

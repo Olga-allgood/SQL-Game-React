@@ -17,13 +17,13 @@ import SQLCaseFile from "../../components/sql/SQLCaseFile";
 import SQLChallenge from "../../components/sql/SQLChallenge";
 
 import {
-  filteringCards,
+  summarizingCards,
   recognitionTasks,
   builderTasks,
   detectiveTasks,
   caseFiles,
   challengeTasks,
-} from "../../data/sql/filteringData";
+} from "../../data/sql/summarizingData";
 
 import {
   useProgress,
@@ -36,9 +36,9 @@ const {
 } = Typography;
 
 const LEVEL_KEY =
-  "filtering-data";
+  "summarizing-data";
 
-export default function FilteringData() {
+export default function SummarizingData() {
   const [
     activity,
     setActivity,
@@ -49,6 +49,10 @@ export default function FilteringData() {
     markTaskSolved,
     markAnswerRevealed,
   } = useProgress();
+
+  /* =========================================================
+     LEVEL PROGRESS
+  ========================================================= */
 
   const levelProgress =
     getLevelProgress(
@@ -66,7 +70,7 @@ export default function FilteringData() {
     );
 
   /* =========================================================
-     TOTAL TASKS
+     TOTAL ASSESSED TASKS
   ========================================================= */
 
   const totalTasks =
@@ -86,7 +90,7 @@ export default function FilteringData() {
         );
 
   /* =========================================================
-     PROGRESS CALLBACKS
+     HANDLE SOLVED
   ========================================================= */
 
   const handleSolved = (
@@ -100,6 +104,10 @@ export default function FilteringData() {
     );
   };
 
+  /* =========================================================
+     HANDLE REVEAL
+  ========================================================= */
+
   const handleReveal = (
     activityKey,
     taskId
@@ -112,7 +120,7 @@ export default function FilteringData() {
   };
 
   /* =========================================================
-     RENDER
+     RENDER ACTIVITY
   ========================================================= */
 
   const renderActivity = () => {
@@ -121,7 +129,7 @@ export default function FilteringData() {
         return (
           <SQLCards
             cards={
-              filteringCards
+              summarizingCards
             }
           />
         );
@@ -238,7 +246,9 @@ export default function FilteringData() {
 
   return (
     <>
-      {/* LEVEL HEADER */}
+      {/* =====================================================
+          LEVEL HEADER
+      ===================================================== */}
 
       <div
         style={{
@@ -247,7 +257,7 @@ export default function FilteringData() {
       >
         <Space>
           <Tag color="blue">
-            Level 2
+            Level 4
           </Tag>
 
           <Text type="secondary">
@@ -262,19 +272,19 @@ export default function FilteringData() {
             marginBottom: 4,
           }}
         >
-          Filtering Data
+          Summarizing Data
         </Title>
 
         <Paragraph type="secondary">
-          Learn how to filter
-          rows using WHERE,
-          comparison operators,
-          AND, OR, NOT,
-          BETWEEN, IN, and LIKE.
+          Learn how SQL can summarize
+          many rows using COUNT(),
+          SUM(), AVG(), MIN(), and MAX().
         </Paragraph>
       </div>
 
-      {/* MASTERY */}
+      {/* =====================================================
+          MASTERY
+      ===================================================== */}
 
       <Card
         style={{
@@ -297,7 +307,7 @@ export default function FilteringData() {
                 margin: 0,
               }}
             >
-              Level 2 Mastery
+              Level 4 Mastery
             </Title>
 
             <Text type="secondary">
@@ -349,7 +359,9 @@ export default function FilteringData() {
         )}
       </Card>
 
-      {/* MENU */}
+      {/* =====================================================
+          LEARNING CYCLE
+      ===================================================== */}
 
       <Card
         styles={{

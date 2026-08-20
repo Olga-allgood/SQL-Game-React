@@ -17,13 +17,13 @@ import SQLCaseFile from "../../components/sql/SQLCaseFile";
 import SQLChallenge from "../../components/sql/SQLChallenge";
 
 import {
-  filteringCards,
+  groupingCards,
   recognitionTasks,
   builderTasks,
   detectiveTasks,
   caseFiles,
   challengeTasks,
-} from "../../data/sql/filteringData";
+} from "../../data/sql/groupingData";
 
 import {
   useProgress,
@@ -35,10 +35,9 @@ const {
   Paragraph,
 } = Typography;
 
-const LEVEL_KEY =
-  "filtering-data";
+const LEVEL_KEY = "grouping-data";
 
-export default function FilteringData() {
+export default function GroupingData() {
   const [
     activity,
     setActivity,
@@ -65,10 +64,6 @@ export default function FilteringData() {
       levelProgress.revealedTasks
     );
 
-  /* =========================================================
-     TOTAL TASKS
-  ========================================================= */
-
   const totalTasks =
     recognitionTasks.length +
     builderTasks.length +
@@ -84,10 +79,6 @@ export default function FilteringData() {
             totalTasks) *
             100
         );
-
-  /* =========================================================
-     PROGRESS CALLBACKS
-  ========================================================= */
 
   const handleSolved = (
     activityKey,
@@ -111,17 +102,13 @@ export default function FilteringData() {
     );
   };
 
-  /* =========================================================
-     RENDER
-  ========================================================= */
-
   const renderActivity = () => {
     switch (activity) {
       case "learn":
         return (
           <SQLCards
             cards={
-              filteringCards
+              groupingCards
             }
           />
         );
@@ -247,7 +234,7 @@ export default function FilteringData() {
       >
         <Space>
           <Tag color="blue">
-            Level 2
+            Level 5
           </Tag>
 
           <Text type="secondary">
@@ -262,15 +249,15 @@ export default function FilteringData() {
             marginBottom: 4,
           }}
         >
-          Filtering Data
+          Grouping Data
         </Title>
 
         <Paragraph type="secondary">
-          Learn how to filter
-          rows using WHERE,
-          comparison operators,
-          AND, OR, NOT,
-          BETWEEN, IN, and LIKE.
+          Learn how to summarize
+          categories and groups using
+          GROUP BY and how to filter
+          rows and grouped results with
+          WHERE and HAVING.
         </Paragraph>
       </div>
 
@@ -297,14 +284,14 @@ export default function FilteringData() {
                 margin: 0,
               }}
             >
-              Level 2 Mastery
+              Level 5 Mastery
             </Title>
 
             <Text type="secondary">
               {solvedTasks.size}{" "}
-              of {totalTasks}{" "}
-              assessed tasks
-              solved independently
+              of {totalTasks} assessed
+              tasks solved
+              independently
             </Text>
           </div>
 
@@ -326,8 +313,7 @@ export default function FilteringData() {
           }}
         />
 
-        {revealedTasks.size >
-          0 && (
+        {revealedTasks.size > 0 && (
           <Text
             type="secondary"
             style={{
@@ -335,21 +321,18 @@ export default function FilteringData() {
               marginTop: 8,
             }}
           >
-            {
-              revealedTasks.size
-            }{" "}
+            {revealedTasks.size}{" "}
             task
-            {revealedTasks.size ===
-            1
+            {revealedTasks.size === 1
               ? ""
               : "s"}{" "}
-            reviewed with the
-            answer revealed.
+            reviewed with the answer
+            revealed.
           </Text>
         )}
       </Card>
 
-      {/* MENU */}
+      {/* LEARNING CYCLE */}
 
       <Card
         styles={{
@@ -372,33 +355,27 @@ export default function FilteringData() {
           items={[
             {
               key: "learn",
-              label:
-                "1. Learn",
+              label: "1. Learn",
             },
             {
               key: "recognize",
-              label:
-                "2. Recognize",
+              label: "2. Recognize",
             },
             {
               key: "build",
-              label:
-                "3. Build",
+              label: "3. Build",
             },
             {
               key: "detective",
-              label:
-                "4. Apply",
+              label: "4. Apply",
             },
             {
               key: "casefile",
-              label:
-                "5. Analyze",
+              label: "5. Analyze",
             },
             {
               key: "challenge",
-              label:
-                "6. Challenge",
+              label: "6. Challenge",
             },
           ]}
         />

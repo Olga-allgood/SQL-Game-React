@@ -25,11 +25,18 @@ import {
   challengeTasks,
 } from "../../data/sql/readingQuery";
 
+import {
+  useProgress,
+} from "../../context/ProgressContext";
+
 const {
   Title,
   Text,
   Paragraph,
 } = Typography;
+
+const LEVEL_KEY =
+  "reading-query";
 
 export default function ReadingQuery() {
   const [
@@ -37,22 +44,35 @@ export default function ReadingQuery() {
     setActivity,
   ] = useState("learn");
 
+  const {
+    getLevelProgress,
+    markTaskSolved,
+    markAnswerRevealed,
+  } = useProgress();
+
+  /* =========================================================
+     LEVEL PROGRESS
+  ========================================================= */
+
+  const levelProgress =
+    getLevelProgress(
+      LEVEL_KEY
+    );
+
   /*
-   * These Sets live at the Level 1
-   * level so progress survives when
-   * the learner moves between
-   * activities.
-   */
+    Components currently use Set.has(),
+    so convert stored arrays to Sets.
+  */
 
-  const [
-    solvedTasks,
-    setSolvedTasks,
-  ] = useState(new Set());
+  const solvedTasks =
+    new Set(
+      levelProgress.solvedTasks
+    );
 
-  const [
-    revealedTasks,
-    setRevealedTasks,
-  ] = useState(new Set());
+  const revealedTasks =
+    new Set(
+      levelProgress.revealedTasks
+    );
 
   /* =========================================================
      TOTAL ASSESSED TASKS
@@ -65,85 +85,6 @@ export default function ReadingQuery() {
     caseFiles.length +
     challengeTasks.length;
 
-  /* =========================================================
-     RECORD SOLVED TASK
-  ========================================================= */
-
-  const handleSolved = (
-    activityKey,
-    taskId
-  ) => {
-    const taskKey =
-      `${activityKey}-${taskId}`;
-
-    /*
-     * If the answer was previously
-     * revealed, it should not count
-     * toward independent mastery.
-     */
-
-    if (
-      revealedTasks.has(taskKey)
-    ) {
-      return;
-    }
-
-    setSolvedTasks(
-      (previous) => {
-        const updated =
-          new Set(previous);
-
-        updated.add(taskKey);
-
-        return updated;
-      }
-    );
-  };
-
-  /* =========================================================
-     RECORD REVEALED ANSWER
-  ========================================================= */
-
-  const handleReveal = (
-    activityKey,
-    taskId
-  ) => {
-    const taskKey =
-      `${activityKey}-${taskId}`;
-
-    setRevealedTasks(
-      (previous) => {
-        const updated =
-          new Set(previous);
-
-        updated.add(taskKey);
-
-        return updated;
-      }
-    );
-
-    /*
-     * If it somehow counted before
-     * reveal, remove it from
-     * independent mastery.
-     */
-
-    setSolvedTasks(
-      (previous) => {
-        const updated =
-          new Set(previous);
-
-        updated.delete(taskKey);
-
-        return updated;
-      }
-    );
-  };
-
-  /* =========================================================
-     MASTERY
-  ========================================================= */
-
   const mastery =
     totalTasks === 0
       ? 0
@@ -154,7 +95,37 @@ export default function ReadingQuery() {
         );
 
   /* =========================================================
-     ACTIVITY RENDERING
+     HANDLE SOLVED
+  ========================================================= */
+
+  const handleSolved = (
+    activityKey,
+    taskId
+  ) => {
+    markTaskSolved(
+      LEVEL_KEY,
+      activityKey,
+      taskId
+    );
+  };
+
+  /* =========================================================
+     HANDLE REVEAL
+  ========================================================= */
+
+  const handleReveal = (
+    activityKey,
+    taskId
+  ) => {
+    markAnswerRevealed(
+      LEVEL_KEY,
+      activityKey,
+      taskId
+    );
+  };
+
+  /* =========================================================
+     RENDER ACTIVITY
   ========================================================= */
 
   const renderActivity = () => {
@@ -234,7 +205,9 @@ export default function ReadingQuery() {
       case "casefile":
         return (
           <SQLCaseFile
-            cases={caseFiles}
+            cases={
+              caseFiles
+            }
             solvedTasks={
               solvedTasks
             }
@@ -278,9 +251,7 @@ export default function ReadingQuery() {
 
   return (
     <>
-      {/* =====================================================
-          LEVEL HEADER
-      ===================================================== */}
+      {/* LEVEL HEADER */}
 
       <div
         style={{
@@ -308,16 +279,15 @@ export default function ReadingQuery() {
         </Title>
 
         <Paragraph type="secondary">
-          Learn how SELECT, FROM,
+          Learn how SELECT,
+          FROM, multiple columns,
           and * define the
           information returned by
           a basic SQL query.
         </Paragraph>
       </div>
 
-      {/* =====================================================
-          LEVEL 1 MASTERY
-      ===================================================== */}
+      {/* MASTERY */}
 
       <Card
         style={{
@@ -344,10 +314,10 @@ export default function ReadingQuery() {
             </Title>
 
             <Text type="secondary">
-              {solvedTasks.size} of{" "}
-              {totalTasks} assessed
-              tasks solved
-              independently
+              {solvedTasks.size}{" "}
+              of {totalTasks}{" "}
+              assessed tasks
+              solved independently
             </Text>
           </div>
 
@@ -392,9 +362,7 @@ export default function ReadingQuery() {
         )}
       </Card>
 
-      {/* =====================================================
-          LEARNING CYCLE
-      ===================================================== */}
+      {/* ACTIVITY MENU */}
 
       <Card
         styles={{
@@ -448,10 +416,6 @@ export default function ReadingQuery() {
           ]}
         />
       </Card>
-
-      {/* =====================================================
-          CURRENT ACTIVITY
-      ===================================================== */}
 
       {renderActivity()}
     </>
