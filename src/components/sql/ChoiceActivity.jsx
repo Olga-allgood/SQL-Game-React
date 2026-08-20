@@ -1,16 +1,20 @@
-// src/components/sql/ChoiceActivity.jsx
-
 import { useState } from "react";
+
 import {
   Button,
   Card,
+  Grid,
   Progress,
   Radio,
   Space,
   Typography,
 } from "antd";
 
-const { Title, Text, Paragraph } = Typography;
+const {
+  Title,
+  Text,
+  Paragraph,
+} = Typography;
 
 export const ChoiceActivity = ({
   activityKey,
@@ -22,37 +26,82 @@ export const ChoiceActivity = ({
   onSolved,
   onReveal,
 }) => {
-  const [currentTask, setCurrentTask] = useState(0);
-  const [selected, setSelected] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [correct, setCorrect] = useState(false);
-  const [showHint, setShowHint] = useState(false);
-  const [showAnswer, setShowAnswer] = useState(false);
+  const screens =
+    Grid.useBreakpoint();
 
-  const task = tasks[currentTask];
+  const isMobile =
+    screens.sm === false;
 
-  const taskKey = `${activityKey}-${task.id}`;
+  const [
+    currentTask,
+    setCurrentTask,
+  ] = useState(0);
+
+  const [
+    selected,
+    setSelected,
+  ] = useState("");
+
+  const [
+    submitted,
+    setSubmitted,
+  ] = useState(false);
+
+  const [
+    correct,
+    setCorrect,
+  ] = useState(false);
+
+  const [
+    showHint,
+    setShowHint,
+  ] = useState(false);
+
+  const [
+    showAnswer,
+    setShowAnswer,
+  ] = useState(false);
+
+  const task =
+    tasks[currentTask];
+
+  const taskKey =
+    `${activityKey}-${task.id}`;
 
   const taskWasRevealed =
-    revealedTasks.has(taskKey);
+    revealedTasks.has(
+      taskKey
+    );
 
-  const solvedInActivity = tasks.filter((item) =>
-    solvedTasks.has(`${activityKey}-${item.id}`)
-  ).length;
+  const solvedInActivity =
+    tasks.filter((item) =>
+      solvedTasks.has(
+        `${activityKey}-${item.id}`
+      )
+    ).length;
 
-  const progress = Math.round(
-    (solvedInActivity / tasks.length) * 100
-  );
+  const progress =
+    Math.round(
+      (solvedInActivity /
+        tasks.length) *
+        100
+    );
 
-  const correctOption = task.options.find(
-    (option) => option.id === task.correctAnswer
-  );
+  const correctOption =
+    task.options.find(
+      (option) =>
+        option.id ===
+        task.correctAnswer
+    );
 
   const handleCheck = () => {
-    if (!selected) return;
+    if (!selected) {
+      return;
+    }
 
     const isCorrect =
-      selected === task.correctAnswer;
+      selected ===
+      task.correctAnswer;
 
     setSubmitted(true);
     setCorrect(isCorrect);
@@ -61,29 +110,35 @@ export const ChoiceActivity = ({
       isCorrect &&
       !taskWasRevealed
     ) {
-      onSolved(activityKey, task.id);
+      onSolved(
+        activityKey,
+        task.id
+      );
     }
   };
 
-  const handleTryAgain = () => {
-    setSelected("");
-    setSubmitted(false);
-    setCorrect(false);
-    setShowAnswer(false);
-  };
+  const handleTryAgain =
+    () => {
+      setSelected("");
+      setSubmitted(false);
+      setCorrect(false);
+      setShowAnswer(false);
+    };
 
-  const handleShowHint = () => {
-    setShowHint(true);
-  };
+  const handleShowHint =
+    () => {
+      setShowHint(true);
+    };
 
-  const handleShowAnswer = () => {
-    setShowAnswer(true);
+  const handleShowAnswer =
+    () => {
+      setShowAnswer(true);
 
-    onReveal(
-      activityKey,
-      task.id
-    );
-  };
+      onReveal(
+        activityKey,
+        task.id
+      );
+    };
 
   const handleNext = () => {
     if (
@@ -94,7 +149,8 @@ export const ChoiceActivity = ({
     }
 
     setCurrentTask(
-      (previous) => previous + 1
+      (previous) =>
+        previous + 1
     );
 
     setSelected("");
@@ -107,8 +163,16 @@ export const ChoiceActivity = ({
   return (
     <Card
       style={{
+        width: "100%",
         maxWidth: 850,
         margin: "0 auto",
+      }}
+      styles={{
+        body: {
+          padding: isMobile
+            ? 16
+            : 24,
+        },
       }}
     >
       {/* HEADER */}
@@ -116,15 +180,28 @@ export const ChoiceActivity = ({
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          gap: 16,
+          justifyContent:
+            "space-between",
+          alignItems:
+            "flex-start",
+          gap: 12,
+          flexWrap: "wrap",
         }}
       >
-        <div>
+        <div
+          style={{
+            minWidth: 0,
+            flex: 1,
+          }}
+        >
           <Title
             level={3}
-            style={{ margin: 0 }}
+            style={{
+              margin: 0,
+              fontSize: isMobile
+                ? 20
+                : undefined,
+            }}
           >
             {title}
           </Title>
@@ -148,7 +225,8 @@ export const ChoiceActivity = ({
       >
         <Text type="secondary">
           Correctly solved:{" "}
-          {solvedInActivity} / {tasks.length}
+          {solvedInActivity} /{" "}
+          {tasks.length}
         </Text>
 
         <Progress
@@ -165,13 +243,17 @@ export const ChoiceActivity = ({
 
       <div
         style={{
-          marginTop: 28,
-          paddingTop: 24,
-          borderTop: "1px solid #f0f0f0",
+          marginTop: 24,
+          paddingTop: 20,
+          borderTop:
+            "1px solid #f0f0f0",
+          minWidth: 0,
         }}
       >
         <Text type="secondary">
-          Task {currentTask + 1} of {tasks.length}
+          Task{" "}
+          {currentTask + 1}{" "}
+          of {tasks.length}
         </Text>
 
         {task.title && (
@@ -180,6 +262,8 @@ export const ChoiceActivity = ({
             style={{
               marginTop: 8,
               marginBottom: 8,
+              overflowWrap:
+                "anywhere",
             }}
           >
             {task.title}
@@ -187,26 +271,48 @@ export const ChoiceActivity = ({
         )}
 
         {task.scenario && (
-          <Paragraph>
+          <Paragraph
+            style={{
+              overflowWrap:
+                "anywhere",
+            }}
+          >
             {task.scenario}
           </Paragraph>
         )}
+
+        {/* SQL QUERY */}
 
         {task.query && (
           <div
             style={{
               marginTop: 16,
               marginBottom: 20,
-              padding: 16,
-              background: "#fafafa",
-              border: "1px solid #f0f0f0",
+              padding: isMobile
+                ? 12
+                : 16,
+              background:
+                "#fafafa",
+              border:
+                "1px solid #f0f0f0",
               borderRadius: 6,
+              overflowX: "auto",
+              maxWidth: "100%",
             }}
           >
             <Text
               code
               style={{
-                whiteSpace: "pre-wrap",
+                whiteSpace:
+                  "pre-wrap",
+                overflowWrap:
+                  "anywhere",
+                wordBreak:
+                  "break-word",
+                fontSize:
+                  isMobile
+                    ? 12
+                    : 14,
               }}
             >
               {task.query.trim()}
@@ -214,86 +320,139 @@ export const ChoiceActivity = ({
           </div>
         )}
 
-        <Paragraph strong>
+        <Paragraph
+          strong
+          style={{
+            overflowWrap:
+              "anywhere",
+          }}
+        >
           {task.question}
         </Paragraph>
+
+        {/* ANSWERS */}
 
         <Radio.Group
           value={selected}
           onChange={(event) =>
-            setSelected(event.target.value)
+            setSelected(
+              event.target.value
+            )
           }
-          disabled={submitted || showAnswer}
+          disabled={
+            submitted ||
+            showAnswer
+          }
+          style={{
+            width: "100%",
+          }}
         >
           <Space
             direction="vertical"
             size="middle"
+            style={{
+              width: "100%",
+            }}
           >
-            {task.options.map((option) => (
-              <Radio
-                key={option.id}
-                value={option.id}
-              >
-                {option.label}
-              </Radio>
-            ))}
+            {task.options.map(
+              (option) => (
+                <Radio
+                  key={option.id}
+                  value={option.id}
+                  style={{
+                    width: "100%",
+                    whiteSpace:
+                      "normal",
+                    alignItems:
+                      "flex-start",
+                  }}
+                >
+                  <span
+                    style={{
+                      whiteSpace:
+                        "normal",
+                      overflowWrap:
+                        "anywhere",
+                      wordBreak:
+                        "break-word",
+                    }}
+                  >
+                    {option.label}
+                  </span>
+                </Radio>
+              )
+            )}
           </Space>
         </Radio.Group>
 
-        {!submitted && !showAnswer && (
-          <Space
-            wrap
-            style={{
-              marginTop: 20,
-            }}
-          >
-            <Button
-              type="primary"
-              disabled={!selected}
-              onClick={handleCheck}
+        {!submitted &&
+          !showAnswer && (
+            <Space
+              wrap
+              style={{
+                marginTop: 20,
+              }}
             >
-              Check Answer
-            </Button>
-
-            {!showHint && (
               <Button
-                onClick={handleShowHint}
+                type="primary"
+                disabled={
+                  !selected
+                }
+                onClick={
+                  handleCheck
+                }
               >
-                Show Hint
+                Check Answer
               </Button>
-            )}
-          </Space>
-        )}
+
+              {!showHint && (
+                <Button
+                  onClick={
+                    handleShowHint
+                  }
+                >
+                  Show Hint
+                </Button>
+              )}
+            </Space>
+          )}
       </div>
 
       {/* HINT */}
 
-      {showHint && !showAnswer && (
-        <div
-          style={{
-            marginTop: 18,
-            padding: 16,
-            background: "#fafafa",
-            border: "1px solid #d9d9d9",
-            borderRadius: 6,
-          }}
-        >
-          <Text strong>
-            💡 Hint
-          </Text>
-
-          <Paragraph
+      {showHint &&
+        !showAnswer && (
+          <div
             style={{
-              marginTop: 8,
-              marginBottom: 0,
+              marginTop: 18,
+              padding: isMobile
+                ? 12
+                : 16,
+              background:
+                "#fafafa",
+              border:
+                "1px solid #d9d9d9",
+              borderRadius: 6,
             }}
           >
-            {task.hint}
-          </Paragraph>
-        </div>
-      )}
+            <Text strong>
+              💡 Hint
+            </Text>
 
-      {/* INCORRECT FEEDBACK */}
+            <Paragraph
+              style={{
+                marginTop: 8,
+                marginBottom: 0,
+                overflowWrap:
+                  "anywhere",
+              }}
+            >
+              {task.hint}
+            </Paragraph>
+          </div>
+        )}
+
+      {/* INCORRECT */}
 
       {submitted &&
         !correct &&
@@ -310,38 +469,43 @@ export const ChoiceActivity = ({
               Not quite.
             </Text>
 
-            <div
+            <Space
+              wrap
               style={{
                 marginTop: 12,
               }}
             >
-              <Space wrap>
-                <Button
-                  type="primary"
-                  onClick={handleTryAgain}
-                >
-                  Try Again
-                </Button>
+              <Button
+                type="primary"
+                onClick={
+                  handleTryAgain
+                }
+              >
+                Try Again
+              </Button>
 
-                {!showHint && (
-                  <Button
-                    onClick={handleShowHint}
-                  >
-                    Show Hint
-                  </Button>
-                )}
-
+              {!showHint && (
                 <Button
-                  onClick={handleShowAnswer}
+                  onClick={
+                    handleShowHint
+                  }
                 >
-                  Show Answer
+                  Show Hint
                 </Button>
-              </Space>
-            </div>
+              )}
+
+              <Button
+                onClick={
+                  handleShowAnswer
+                }
+              >
+                Show Answer
+              </Button>
+            </Space>
           </div>
         )}
 
-      {/* CORRECT FEEDBACK */}
+      {/* CORRECT */}
 
       {submitted &&
         correct &&
@@ -361,6 +525,8 @@ export const ChoiceActivity = ({
             <Paragraph
               style={{
                 marginTop: 8,
+                overflowWrap:
+                  "anywhere",
               }}
             >
               {task.explanation}
@@ -368,8 +534,10 @@ export const ChoiceActivity = ({
 
             {taskWasRevealed && (
               <Text type="secondary">
-                The answer was previously revealed,
-                so this task does not count toward
+                The answer was
+                previously revealed,
+                so this task does not
+                count toward
                 independent mastery.
               </Text>
             )}
@@ -382,10 +550,15 @@ export const ChoiceActivity = ({
         <div
           style={{
             marginTop: 20,
-            padding: 16,
-            background: "#fafafa",
-            border: "1px solid #f0f0f0",
+            padding: isMobile
+              ? 12
+              : 16,
+            background:
+              "#fafafa",
+            border:
+              "1px solid #f0f0f0",
             borderRadius: 6,
+            overflowX: "auto",
           }}
         >
           <Text strong>
@@ -397,8 +570,18 @@ export const ChoiceActivity = ({
               marginTop: 8,
             }}
           >
-            <Text code>
-              {correctOption?.label}
+            <Text
+              code
+              style={{
+                whiteSpace:
+                  "pre-wrap",
+                overflowWrap:
+                  "anywhere",
+              }}
+            >
+              {
+                correctOption?.label
+              }
             </Text>
           </Paragraph>
 
@@ -407,8 +590,9 @@ export const ChoiceActivity = ({
           </Paragraph>
 
           <Text type="secondary">
-            Because the answer was revealed,
-            this task does not count toward
+            Because the answer was
+            revealed, this task does
+            not count toward
             independent mastery.
           </Text>
         </div>
@@ -416,16 +600,20 @@ export const ChoiceActivity = ({
 
       {/* NEXT */}
 
-      {(correct || showAnswer) && (
+      {(correct ||
+        showAnswer) && (
         <div
           style={{
             marginTop: 22,
           }}
         >
-          {currentTask < tasks.length - 1 ? (
+          {currentTask <
+          tasks.length - 1 ? (
             <Button
               type="primary"
-              onClick={handleNext}
+              onClick={
+                handleNext
+              }
             >
               Next Task
             </Button>

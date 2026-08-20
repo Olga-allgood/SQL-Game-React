@@ -3,12 +3,17 @@ import { useState } from "react";
 import {
   Button,
   Card,
+  Grid,
   Progress,
   Space,
   Typography,
 } from "antd";
 
-const { Title, Text, Paragraph } = Typography;
+const {
+  Title,
+  Text,
+  Paragraph,
+} = Typography;
 
 export const QueryBuilder = ({
   tasks,
@@ -17,45 +22,76 @@ export const QueryBuilder = ({
   onSolved,
   onReveal,
 }) => {
-  const [currentTask, setCurrentTask] = useState(0);
-  const [selected, setSelected] = useState([]);
-  const [submitted, setSubmitted] = useState(false);
-  const [correct, setCorrect] = useState(false);
-  const [showHint, setShowHint] = useState(false);
-  const [showAnswer, setShowAnswer] = useState(false);
+  const screens =
+    Grid.useBreakpoint();
 
-  const task = tasks[currentTask];
+  const isMobile =
+    screens.sm === false;
 
-  const taskKey = `build-${task.id}`;
+  const [
+    currentTask,
+    setCurrentTask,
+  ] = useState(0);
+
+  const [
+    selected,
+    setSelected,
+  ] = useState([]);
+
+  const [
+    submitted,
+    setSubmitted,
+  ] = useState(false);
+
+  const [
+    correct,
+    setCorrect,
+  ] = useState(false);
+
+  const [
+    showHint,
+    setShowHint,
+  ] = useState(false);
+
+  const [
+    showAnswer,
+    setShowAnswer,
+  ] = useState(false);
+
+  const task =
+    tasks[currentTask];
+
+  const taskKey =
+    `build-${task.id}`;
 
   const taskWasRevealed =
-    revealedTasks.has(taskKey);
+    revealedTasks.has(
+      taskKey
+    );
 
   const solvedInActivity =
     tasks.filter((item) =>
-      solvedTasks.has(`build-${item.id}`)
+      solvedTasks.has(
+        `build-${item.id}`
+      )
     ).length;
 
-  const progress = Math.round(
-    (solvedInActivity / tasks.length) * 100
-  );
-
-  /*
-    Store the index as well as the text.
-
-    This lets the builder support repeated pieces,
-    such as publication_year appearing twice.
-  */
+  const progress =
+    Math.round(
+      (solvedInActivity /
+        tasks.length) *
+        100
+    );
 
   const selectedIndexes =
-    selected.map((item) => item.index);
+    selected.map(
+      (item) => item.index
+    );
 
   const builtQuery =
-    selected.map((item) => item.piece);
-
-  /* =========================================================
-     ADD PIECE
-  ========================================================= */
+    selected.map(
+      (item) => item.piece
+    );
 
   const handlePiece = (
     piece,
@@ -64,23 +100,23 @@ export const QueryBuilder = ({
     if (
       submitted ||
       showAnswer ||
-      selectedIndexes.includes(index)
+      selectedIndexes.includes(
+        index
+      )
     ) {
       return;
     }
 
-    setSelected((previous) => [
-      ...previous,
-      {
-        piece,
-        index,
-      },
-    ]);
+    setSelected(
+      (previous) => [
+        ...previous,
+        {
+          piece,
+          index,
+        },
+      ]
+    );
   };
-
-  /* =========================================================
-     REMOVE LAST PIECE
-  ========================================================= */
 
   const handleUndo = () => {
     if (
@@ -91,19 +127,20 @@ export const QueryBuilder = ({
       return;
     }
 
-    setSelected((previous) =>
-      previous.slice(0, -1)
+    setSelected(
+      (previous) =>
+        previous.slice(0, -1)
     );
   };
 
-  /* =========================================================
-     CHECK
-  ========================================================= */
-
   const handleCheck = () => {
     const isCorrect =
-      JSON.stringify(builtQuery) ===
-      JSON.stringify(task.answer);
+      JSON.stringify(
+        builtQuery
+      ) ===
+      JSON.stringify(
+        task.answer
+      );
 
     setSubmitted(true);
     setCorrect(isCorrect);
@@ -119,10 +156,6 @@ export const QueryBuilder = ({
     }
   };
 
-  /* =========================================================
-     RESET
-  ========================================================= */
-
   const handleReset = () => {
     setSelected([]);
     setSubmitted(false);
@@ -130,46 +163,28 @@ export const QueryBuilder = ({
     setShowAnswer(false);
   };
 
-  /* =========================================================
-     TRY AGAIN
-  ========================================================= */
+  const handleTryAgain =
+    () => {
+      setSelected([]);
+      setSubmitted(false);
+      setCorrect(false);
+      setShowAnswer(false);
+    };
 
-  const handleTryAgain = () => {
-    setSelected([]);
-    setSubmitted(false);
-    setCorrect(false);
-    setShowAnswer(false);
+  const handleShowHint =
+    () => {
+      setShowHint(true);
+    };
 
-    /*
-      Keep hint visible if learner
-      has already requested it.
-    */
-  };
+  const handleShowAnswer =
+    () => {
+      setShowAnswer(true);
 
-  /* =========================================================
-     SHOW HINT
-  ========================================================= */
-
-  const handleShowHint = () => {
-    setShowHint(true);
-  };
-
-  /* =========================================================
-     SHOW ANSWER
-  ========================================================= */
-
-  const handleShowAnswer = () => {
-    setShowAnswer(true);
-
-    onReveal(
-      "build",
-      task.id
-    );
-  };
-
-  /* =========================================================
-     NEXT
-  ========================================================= */
+      onReveal(
+        "build",
+        task.id
+      );
+    };
 
   const handleNext = () => {
     if (
@@ -180,7 +195,8 @@ export const QueryBuilder = ({
     }
 
     setCurrentTask(
-      (previous) => previous + 1
+      (previous) =>
+        previous + 1
     );
 
     setSelected([]);
@@ -193,8 +209,16 @@ export const QueryBuilder = ({
   return (
     <Card
       style={{
+        width: "100%",
         maxWidth: 850,
         margin: "0 auto",
+      }}
+      styles={{
+        body: {
+          padding: isMobile
+            ? 16
+            : 24,
+        },
       }}
     >
       {/* HEADER */}
@@ -202,24 +226,36 @@ export const QueryBuilder = ({
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          gap: 16,
+          justifyContent:
+            "space-between",
+          alignItems:
+            "flex-start",
+          gap: 12,
+          flexWrap: "wrap",
         }}
       >
-        <div>
+        <div
+          style={{
+            minWidth: 0,
+            flex: 1,
+          }}
+        >
           <Title
             level={3}
             style={{
               margin: 0,
+              fontSize: isMobile
+                ? 20
+                : undefined,
             }}
           >
             🔧 Build the Query
           </Title>
 
           <Text type="secondary">
-            Assemble the SQL query from
-            the available pieces.
+            Assemble the SQL
+            query from the
+            available pieces.
           </Text>
         </div>
 
@@ -237,7 +273,8 @@ export const QueryBuilder = ({
       >
         <Text type="secondary">
           Correctly solved:{" "}
-          {solvedInActivity} / {tasks.length}
+          {solvedInActivity} /{" "}
+          {tasks.length}
         </Text>
 
         <Progress
@@ -254,21 +291,25 @@ export const QueryBuilder = ({
 
       <div
         style={{
-          marginTop: 28,
-          paddingTop: 24,
+          marginTop: 24,
+          paddingTop: 20,
           borderTop:
             "1px solid #f0f0f0",
+          minWidth: 0,
         }}
       >
         <Text type="secondary">
-          Task {currentTask + 1} of{" "}
-          {tasks.length}
+          Task{" "}
+          {currentTask + 1}{" "}
+          of {tasks.length}
         </Text>
 
         <Title
           level={4}
           style={{
             marginTop: 8,
+            overflowWrap:
+              "anywhere",
           }}
         >
           {task.prompt}
@@ -279,17 +320,38 @@ export const QueryBuilder = ({
         <div
           style={{
             marginTop: 16,
-            padding: 16,
+            padding: isMobile
+              ? 12
+              : 16,
             minHeight: 64,
-            background: "#fafafa",
+            background:
+              "#fafafa",
             border:
               "1px solid #f0f0f0",
             borderRadius: 6,
+            overflowX: "auto",
+            maxWidth: "100%",
           }}
         >
-          <Text code>
+          <Text
+            code
+            style={{
+              whiteSpace:
+                "pre-wrap",
+              overflowWrap:
+                "anywhere",
+              wordBreak:
+                "break-word",
+              fontSize:
+                isMobile
+                  ? 12
+                  : 14,
+            }}
+          >
             {builtQuery.length
-              ? builtQuery.join(" ")
+              ? builtQuery.join(
+                  " "
+                )
               : "Build your query..."}
           </Text>
         </div>
@@ -297,14 +359,19 @@ export const QueryBuilder = ({
         {/* QUERY PIECES */}
 
         {!showAnswer && (
-          <Space
-            wrap
+          <div
             style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 8,
               marginTop: 16,
             }}
           >
             {task.pieces.map(
-              (piece, index) => (
+              (
+                piece,
+                index
+              ) => (
                 <Button
                   key={`${piece}-${index}`}
                   onClick={() =>
@@ -319,15 +386,26 @@ export const QueryBuilder = ({
                     ) ||
                     submitted
                   }
+                  style={{
+                    height: "auto",
+                    whiteSpace:
+                      "normal",
+                    textAlign:
+                      "left",
+                    maxWidth:
+                      "100%",
+                    overflowWrap:
+                      "anywhere",
+                  }}
                 >
                   {piece}
                 </Button>
               )
             )}
-          </Space>
+          </div>
         )}
 
-        {/* INITIAL ACTIONS */}
+        {/* ACTIONS */}
 
         {!submitted &&
           !showAnswer && (
@@ -339,27 +417,36 @@ export const QueryBuilder = ({
             >
               <Button
                 type="primary"
-                onClick={handleCheck}
+                onClick={
+                  handleCheck
+                }
                 disabled={
-                  selected.length === 0
+                  selected.length ===
+                  0
                 }
               >
                 Check Query
               </Button>
 
               <Button
-                onClick={handleUndo}
+                onClick={
+                  handleUndo
+                }
                 disabled={
-                  selected.length === 0
+                  selected.length ===
+                  0
                 }
               >
                 Undo
               </Button>
 
               <Button
-                onClick={handleReset}
+                onClick={
+                  handleReset
+                }
                 disabled={
-                  selected.length === 0
+                  selected.length ===
+                  0
                 }
               >
                 Reset
@@ -385,8 +472,11 @@ export const QueryBuilder = ({
           <div
             style={{
               marginTop: 18,
-              padding: 16,
-              background: "#fafafa",
+              padding: isMobile
+                ? 12
+                : 16,
+              background:
+                "#fafafa",
               border:
                 "1px solid #d9d9d9",
               borderRadius: 6,
@@ -400,6 +490,8 @@ export const QueryBuilder = ({
               style={{
                 marginTop: 8,
                 marginBottom: 0,
+                overflowWrap:
+                  "anywhere",
               }}
             >
               {task.hint}
@@ -487,26 +579,31 @@ export const QueryBuilder = ({
 
             {taskWasRevealed && (
               <Text type="secondary">
-                The answer was previously
-                revealed, so this task does
-                not count toward independent
-                mastery.
+                The answer was
+                previously revealed,
+                so this task does not
+                count toward
+                independent mastery.
               </Text>
             )}
           </div>
         )}
 
-      {/* REVEALED ANSWER */}
+      {/* ANSWER */}
 
       {showAnswer && (
         <div
           style={{
             marginTop: 20,
-            padding: 16,
-            background: "#fafafa",
+            padding: isMobile
+              ? 12
+              : 16,
+            background:
+              "#fafafa",
             border:
               "1px solid #f0f0f0",
             borderRadius: 6,
+            overflowX: "auto",
           }}
         >
           <Text strong>
@@ -518,8 +615,19 @@ export const QueryBuilder = ({
               marginTop: 8,
             }}
           >
-            <Text code>
-              {task.answer.join(" ")};
+            <Text
+              code
+              style={{
+                whiteSpace:
+                  "pre-wrap",
+                overflowWrap:
+                  "anywhere",
+              }}
+            >
+              {task.answer.join(
+                " "
+              )}
+              ;
             </Text>
           </div>
 
@@ -532,8 +640,9 @@ export const QueryBuilder = ({
           </Paragraph>
 
           <Text type="secondary">
-            Because the answer was revealed,
-            this task does not count toward
+            Because the answer was
+            revealed, this task does
+            not count toward
             independent mastery.
           </Text>
         </div>

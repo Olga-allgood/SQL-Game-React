@@ -1,6 +1,7 @@
 import {
   Button,
   Card,
+  Grid,
   Progress,
   Space,
   Typography,
@@ -101,6 +102,12 @@ const {
 } = Typography;
 
 export default function ProgressPage() {
+  const screens =
+    Grid.useBreakpoint();
+
+  const isMobile =
+    screens.sm === false;
+
   const {
     getLevelProgress,
     resetAllProgress,
@@ -245,21 +252,24 @@ export default function ProgressPage() {
   const totalTasks =
     levelResults.reduce(
       (total, level) =>
-        total + level.total,
+        total +
+        level.total,
       0
     );
 
   const totalSolved =
     levelResults.reduce(
       (total, level) =>
-        total + level.solved,
+        total +
+        level.solved,
       0
     );
 
   const totalRevealed =
     levelResults.reduce(
       (total, level) =>
-        total + level.revealed,
+        total +
+        level.revealed,
       0
     );
 
@@ -277,12 +287,32 @@ export default function ProgressPage() {
   ========================================================= */
 
   return (
-    <>
-      <Title level={2}>
+    <div
+      style={{
+        width: "100%",
+        minWidth: 0,
+      }}
+    >
+      {/* PAGE HEADER */}
+
+      <Title
+        level={2}
+        style={{
+          marginTop: 0,
+          fontSize: isMobile
+            ? 26
+            : undefined,
+        }}
+      >
         My Progress
       </Title>
 
-      <Paragraph type="secondary">
+      <Paragraph
+        type="secondary"
+        style={{
+          marginBottom: 24,
+        }}
+      >
         Track your mastery across
         SQL Foundations.
       </Paragraph>
@@ -294,18 +324,44 @@ export default function ProgressPage() {
       <Card
         style={{
           marginBottom: 24,
+          width: "100%",
+        }}
+        styles={{
+          body: {
+            padding: isMobile
+              ? 16
+              : 24,
+          },
         }}
       >
         <div
           style={{
             display: "flex",
+
+            flexDirection:
+              isMobile
+                ? "column"
+                : "row",
+
             justifyContent:
               "space-between",
-            alignItems: "center",
-            gap: 24,
+
+            alignItems:
+              isMobile
+                ? "flex-start"
+                : "center",
+
+            gap: isMobile
+              ? 12
+              : 24,
           }}
         >
-          <div>
+          <div
+            style={{
+              minWidth: 0,
+              flex: 1,
+            }}
+          >
             <Title
               level={4}
               style={{
@@ -315,7 +371,15 @@ export default function ProgressPage() {
               Overall Mastery
             </Title>
 
-            <Text type="secondary">
+            <Text
+              type="secondary"
+              style={{
+                display: "block",
+                marginTop: 4,
+                overflowWrap:
+                  "anywhere",
+              }}
+            >
               {totalSolved} of{" "}
               {totalTasks} assessed
               tasks solved independently
@@ -326,6 +390,7 @@ export default function ProgressPage() {
             level={2}
             style={{
               margin: 0,
+              flexShrink: 0,
             }}
           >
             {overallMastery}%
@@ -333,24 +398,30 @@ export default function ProgressPage() {
         </div>
 
         <Progress
-          percent={overallMastery}
+          percent={
+            overallMastery
+          }
           showInfo={false}
           style={{
             marginTop: 16,
           }}
         />
 
-        {totalRevealed > 0 && (
+        {totalRevealed >
+          0 && (
           <Text
             type="secondary"
             style={{
               display: "block",
               marginTop: 8,
+              overflowWrap:
+                "anywhere",
             }}
           >
             {totalRevealed}{" "}
             task
-            {totalRevealed === 1
+            {totalRevealed ===
+            1
               ? ""
               : "s"}{" "}
             reviewed with the
@@ -374,18 +445,47 @@ export default function ProgressPage() {
           (level) => (
             <Card
               key={level.key}
+              style={{
+                width: "100%",
+              }}
+              styles={{
+                body: {
+                  padding:
+                    isMobile
+                      ? 16
+                      : 24,
+                },
+              }}
             >
               <div
                 style={{
-                  display: "flex",
+                  display:
+                    "flex",
+
+                  flexDirection:
+                    isMobile
+                      ? "column"
+                      : "row",
+
                   justifyContent:
                     "space-between",
+
                   alignItems:
-                    "center",
-                  gap: 24,
+                    isMobile
+                      ? "flex-start"
+                      : "center",
+
+                  gap: isMobile
+                    ? 10
+                    : 24,
                 }}
               >
-                <div>
+                <div
+                  style={{
+                    minWidth: 0,
+                    flex: 1,
+                  }}
+                >
                   <Text
                     type="secondary"
                   >
@@ -398,12 +498,26 @@ export default function ProgressPage() {
                     style={{
                       margin:
                         "4px 0",
+                      fontSize:
+                        isMobile
+                          ? 18
+                          : undefined,
+                      overflowWrap:
+                        "anywhere",
                     }}
                   >
                     {level.title}
                   </Title>
 
-                  <Text type="secondary">
+                  <Text
+                    type="secondary"
+                    style={{
+                      display:
+                        "block",
+                      overflowWrap:
+                        "anywhere",
+                    }}
+                  >
                     {level.solved}{" "}
                     of{" "}
                     {level.total}{" "}
@@ -416,6 +530,7 @@ export default function ProgressPage() {
                   level={3}
                   style={{
                     margin: 0,
+                    flexShrink: 0,
                   }}
                 >
                   {
@@ -443,6 +558,8 @@ export default function ProgressPage() {
                     display:
                       "block",
                     marginTop: 6,
+                    overflowWrap:
+                      "anywhere",
                   }}
                 >
                   {
@@ -468,6 +585,7 @@ export default function ProgressPage() {
 
       <Button
         danger
+        block={isMobile}
         style={{
           marginTop: 24,
         }}
@@ -477,6 +595,6 @@ export default function ProgressPage() {
       >
         Reset Progress
       </Button>
-    </>
+    </div>
   );
 }
